@@ -35,7 +35,7 @@ java -jar packr_${PACKR_VERSION}.jar \
     --jdk \
     win32-jdk \
     --executable \
-    RuneLite \
+    Near-Reality \
     --classpath \
     target/RuneLite.jar \
     --mainclass \
@@ -51,16 +51,16 @@ java -jar packr_${PACKR_VERSION}.jar \
 
 # modify packr exe manifest to enable Windows dpi scaling
 resourcehacker \
-    -open native-win32/RuneLite.exe \
-    -save native-win32/RuneLite.exe \
+    -open native-win32/Near-Reality.exe \
+    -save native-win32/Near-Reality.exe \
     -action addoverwrite \
     -res packr/runelite.manifest \
     -mask MANIFEST,1,
 
 # packr on Windows doesn't support icons, so we use resourcehacker to include it
 resourcehacker \
-    -open native-win32/RuneLite.exe \
-    -save native-win32/RuneLite.exe \
+    -open native-win32/Near-Reality.exe \
+    -save native-win32/Near-Reality.exe \
     -action add \
     -res runelite.ico \
     -mask ICONGROUP,MAINICON,

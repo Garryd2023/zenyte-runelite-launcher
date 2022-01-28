@@ -35,7 +35,7 @@ java -jar packr_${PACKR_VERSION}.jar \
     --jdk \
     win64-jdk \
     --executable \
-    RuneLite \
+    Near-Reality \
     --classpath \
     target/RuneLite.jar \
     --mainclass \
@@ -50,21 +50,21 @@ java -jar packr_${PACKR_VERSION}.jar \
     native-win64
 
 # modify packr exe manifest to enable Windows dpi scaling
-resourcehacker \
-    -open native-win64/RuneLite.exe \
-    -save native-win64/RuneLite.exe \
+"C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" \
+    -open native-win64/Near-Reality.exe \
+    -save native-win64/Near-Reality.exe \
     -action addoverwrite \
     -res packr/runelite.manifest \
     -mask MANIFEST,1,
 
 # packr on Windows doesn't support icons, so we use resourcehacker to include it
 
-resourcehacker \
-    -open native-win64/RuneLite.exe \
-    -save native-win64/RuneLite.exe \
+"C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" \
+    -open native-win64/Near-Reality.exe \
+    -save native-win64/Near-Reality.exe \
     -action add \
     -res runelite.ico \
     -mask ICONGROUP,MAINICON,
 
 # We use the filtered iss file
-iscc target/filtered-resources/runelite.iss
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" target/filtered-resources/runelite.iss
