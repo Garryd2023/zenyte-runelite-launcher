@@ -38,49 +38,6 @@ import com.google.common.hash.HashingOutputStream;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.function.IntConsumer;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.swing.SwingUtilities;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -92,10 +49,31 @@ import net.runelite.launcher.beans.Diff;
 import net.runelite.launcher.beans.Platform;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.swing.*;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.function.IntConsumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+
 @Slf4j
 public class Launcher
 {
-	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".runelite");
+	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".osnr");
 	public static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
 	private static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
 	public static final File CRASH_FILES = new File(LOGS_DIR, "jvm_crash_pid_%p.log");
@@ -194,7 +172,7 @@ public class Launcher
 			SplashScreen.init();
 			SplashScreen.stage(0, "Preparing", "Setting up environment");
 
-			log.info("RuneLite Launcher version {}", LauncherProperties.getVersion());
+			log.info(Constants.SERVER_NAME + " Launcher version {}", LauncherProperties.getVersion());
 
 			// Print out system info
 			if (log.isDebugEnabled())
@@ -302,19 +280,19 @@ public class Launcher
 			if (launcherTooOld || (nojvm && jvmTooOld))
 			{
 				SwingUtilities.invokeLater(() ->
-					new FatalErrorDialog("Your launcher is to old to start RuneLite. Please download and install a more " +
-						"recent one from RuneLite.net.")
-						.addButton("RuneLite.net", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
+					new FatalErrorDialog("Your launcher is to old to start " + Constants.SERVER_NAME + ". Please download and install a more " +
+						"recent one from " + Constants.SERVER_WEBSITE_SHORT)
+						.addButton(Constants.SERVER_WEBSITE_SHORT, () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
 						.open());
 				return;
 			}
 			if (jvmTooOld)
 			{
 				SwingUtilities.invokeLater(() ->
-					new FatalErrorDialog("Your Java installation is too old. RuneLite now requires Java " +
-						bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from RuneLite.net," +
+					new FatalErrorDialog("Your Java installation is too old. " + Constants.SERVER_NAME + " now requires Java " +
+						bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from " + Constants.SERVER_WEBSITE_SHORT + "," +
 						" or install a newer version of Java.")
-						.addButton("RuneLite.net", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
+						.addButton(Constants.SERVER_WEBSITE_SHORT, () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
 						.open());
 				return;
 			}
@@ -422,7 +400,7 @@ public class Launcher
 		{
 			log.error("Failure during startup", e);
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("RuneLite has encountered an unexpected error during startup.")
+				new FatalErrorDialog(Constants.SERVER_NAME + " has encountered an unexpected error during startup.")
 					.open());
 		}
 		catch (Error e)

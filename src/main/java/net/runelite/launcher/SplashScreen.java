@@ -24,32 +24,24 @@
  */
 package net.runelite.launcher;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Font;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicProgressBarUI;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SplashScreen extends JFrame implements ActionListener
 {
-	private static final Color BRAND_ORANGE = new Color(220, 138, 0);
+	private static final Color BRAND_ORANGE = new Color(0, 194, 0/*220, 138, 0*/);
 	private static final Color DARKER_GRAY_COLOR = new Color(30, 30, 30);
 
 	private static final int WIDTH = 200;
@@ -71,7 +63,7 @@ public class SplashScreen extends JFrame implements ActionListener
 	{
 		BufferedImage logo = ImageIO.read(SplashScreen.class.getResourceAsStream("runelite_transparent.png"));
 
-		setTitle("RuneLite Launcher");
+		setTitle(Constants.SERVER_NAME + " Launcher");
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
