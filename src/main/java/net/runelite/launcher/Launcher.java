@@ -348,7 +348,7 @@ public class Launcher
 			}
 
 			SplashScreen.stage(.80, null, "Verifying");
-			try
+			/*try
 			{
 				verifyJarHashes(artifacts);
 			}
@@ -357,7 +357,7 @@ public class Launcher
 				log.error("Unable to verify artifacts", ex);
 				SwingUtilities.invokeLater(() -> FatalErrorDialog.showNetErrorWindow("verifying downloaded files", ex));
 				return;
-			}
+			}*/
 
 			final Collection<String> clientArgs = getClientArgs(options);
 
@@ -427,29 +427,29 @@ public class Launcher
 	private static Bootstrap getBootstrap() throws IOException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, VerificationException
 	{
 		URL u = new URL(LauncherProperties.getBootstrap());
-		URL signatureUrl = new URL(LauncherProperties.getBootstrapSig());
+		//URL signatureUrl = new URL(LauncherProperties.getBootstrapSig());
 
 		URLConnection conn = u.openConnection();
-		URLConnection signatureConn = signatureUrl.openConnection();
+		//URLConnection signatureConn = signatureUrl.openConnection();
 
 		conn.setRequestProperty("User-Agent", USER_AGENT);
-		signatureConn.setRequestProperty("User-Agent", USER_AGENT);
+		//signatureConn.setRequestProperty("User-Agent", USER_AGENT);
 
 		try (InputStream i = conn.getInputStream();
-			InputStream signatureIn = signatureConn.getInputStream())
+			/*InputStream signatureIn = signatureConn.getInputStream()*/)
 		{
 			byte[] bytes = ByteStreams.toByteArray(i);
-			byte[] signature = ByteStreams.toByteArray(signatureIn);
+			//byte[] signature = ByteStreams.toByteArray(signatureIn);
 
 			Certificate certificate = getCertificate();
 			Signature s = Signature.getInstance("SHA256withRSA");
 			s.initVerify(certificate);
 			s.update(bytes);
 
-			if (!s.verify(signature))
+			/*if (!s.verify(signature))
 			{
 				throw new VerificationException("Unable to verify bootstrap signature");
-			}
+			}*/
 
 			Gson g = new Gson();
 			return g.fromJson(new InputStreamReader(new ByteArrayInputStream(bytes)), Bootstrap.class);
