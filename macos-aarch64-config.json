@@ -2,9 +2,9 @@
     "platform": "mac",
     "icon": "packr/runelite.icns",
     "jdk": "osx-aarch64-jdk",
-    "executable": "RuneLite",
+    "executable": "Near-Reality",
     "classpath": [
-        "target/RuneLite.jar"
+        "target/Near-Reality.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -16,5 +16,5 @@
        "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED",
        "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
     ],
-    "output": "native-osx-aarch64/RuneLite.app"
+    "output": "native-osx-aarch64/Near-Reality.app"
 }

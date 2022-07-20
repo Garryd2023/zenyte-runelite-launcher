@@ -47,7 +47,7 @@ java -jar packr_${PACKR_VERSION}.jar \
     --executable \
     Near-Reality \
     --classpath \
-    target/RuneLite.jar \
+    target/Near-Reality.jar \
     --mainclass \
     net.runelite.launcher.Launcher \
     --vmargs \

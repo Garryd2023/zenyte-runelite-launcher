@@ -34,7 +34,7 @@ echo "ee3b0386d7a6474b042429e2fe7826fd40088258aec05707f0c722d773b5b1bd  packr_${
 # Note: Host umask may have checked out this directory with g/o permissions blank
 chmod -R u=rwX,go=rX appimage
 # ...ditto for the build process
-chmod 644 target/RuneLite.jar
+chmod 644 target/Near-Reality.jar
 
 rm -rf native-linux-aarch64
 
@@ -44,9 +44,9 @@ java -jar packr_${PACKR_VERSION}.jar \
     --jdk \
     linux-aarch64-jdk \
     --executable \
-    RuneLite \
+    Near-Reality \
     --classpath \
-    target/RuneLite.jar \
+    target/Near-Reality.jar \
     --mainclass \
     net.runelite.launcher.Launcher \
     --vmargs \
@@ -56,20 +56,20 @@ java -jar packr_${PACKR_VERSION}.jar \
     XX:CompileThreshold=1500 \
     Djna.nosys=true \
     --output \
-    native-linux-aarch64/RuneLite.AppDir/ \
+    native-linux-aarch64/Near-Reality.AppDir/ \
     --resources \
     target/filtered-resources/runelite.desktop \
     appimage/runelite.png
 
-pushd native-linux-aarch64/RuneLite.AppDir
+pushd native-linux-aarch64/Near-Reality.AppDir
 mkdir -p jre/lib/amd64/server/
 ln -s ../../server/libjvm.so jre/lib/amd64/server/ # packr looks for libjvm at this hardcoded path
 
-# Symlink AppRun -> RuneLite
-ln -s RuneLite AppRun
+# Symlink AppRun -> Near-Reality
+ln -s Near-Reality AppRun
 
-# Ensure RuneLite is executable to all users
-chmod 755 RuneLite
+# Ensure Near-Reality is executable to all users
+chmod 755 Near-Reality
 popd
 
 if ! [ -f appimagetool-x86_64.AppImage ] ; then
@@ -89,5 +89,5 @@ echo "207f8955500cfe8dd5b824ca7514787c023975e083b0269fc14600c380111d85  runtime-
 
 ARCH=arm_aarch64 ./appimagetool-x86_64.AppImage \
 	--runtime-file runtime-aarch64  \
-	native-linux-aarch64/RuneLite.AppDir/ \
-	native-linux-aarch64/RuneLite-aarch64.AppImage
+	native-linux-aarch64/Near-Reality.AppDir/ \
+	native-linux-aarch64/Near-Reality-aarch64.AppImage

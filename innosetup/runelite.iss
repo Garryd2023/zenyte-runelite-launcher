@@ -26,7 +26,7 @@ Name: DesktopIcon; Description: "Create a &desktop icon";
 
 [Files]
 Source: "${basedir}\native-win64\Near-Reality.exe"; DestDir: "{app}"
-Source: "${basedir}\native-win64\RuneLite.jar"; DestDir: "{app}"
+Source: "${basedir}\native-win64\Near-Reality.jar"; DestDir: "{app}"
 Source: "${basedir}\native-win64\config.json"; DestDir: "{app}"
 Source: "${basedir}\native-win64\jre\*"; DestDir: "{app}\jre"; Flags: recursesubdirs
 ; dependencies of jvm.dll and javaaccessbridge.dll

@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=RuneLite
-Comment=A popular free, open-source and super fast client for Old School RuneScape
-Exec=runelite
+Name=Near-Reality
+Comment=Near-Reality is the most ambitious server to date
+Exec=near-reality
 Icon=${SNAP}/meta/gui/runelite.png
 Type=Application
 Categories=Game;
 StartupNotify=false
-Keywords=rs;osrs;old;school;runescape
+Keywords=rs;osrs;old;school;runescape;osnr;near-reality;rsps

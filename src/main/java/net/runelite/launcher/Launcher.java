@@ -59,7 +59,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -348,7 +351,7 @@ public class Launcher
 			}
 
 			SplashScreen.stage(.80, null, "Verifying");
-			/*try
+			try
 			{
 				verifyJarHashes(artifacts);
 			}
@@ -357,7 +360,7 @@ public class Launcher
 				log.error("Unable to verify artifacts", ex);
 				SwingUtilities.invokeLater(() -> FatalErrorDialog.showNetErrorWindow("verifying downloaded files", ex));
 				return;
-			}*/
+			}
 
 			final Collection<String> clientArgs = getClientArgs(options);
 
@@ -436,15 +439,15 @@ public class Launcher
 		//signatureConn.setRequestProperty("User-Agent", USER_AGENT);
 
 		try (InputStream i = conn.getInputStream();
-			/*InputStream signatureIn = signatureConn.getInputStream()*/)
-		{
+			//InputStream signatureIn = signatureConn.getInputStream()
+		) {
 			byte[] bytes = ByteStreams.toByteArray(i);
 			//byte[] signature = ByteStreams.toByteArray(signatureIn);
 
-			Certificate certificate = getCertificate();
+			/*Certificate certificate = getCertificate();
 			Signature s = Signature.getInstance("SHA256withRSA");
 			s.initVerify(certificate);
-			s.update(bytes);
+			s.update(bytes);*/
 
 			/*if (!s.verify(signature))
 			{

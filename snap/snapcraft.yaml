@@ -1,10 +1,10 @@
-name: runelite
+name: near-reality
 base: core20
-title: RuneLite
+title: Near-Reality
 version: git
-summary: A popular free, open-source and super fast client for Old School RuneScape
+summary: Near-Reality is the most ambitious server to date
 description: |
-  A popular free, open-source and super fast client for Old School RuneScape
+  Near-Reality is the most ambitious server to date
 
 type: app
 grade: stable
@@ -22,7 +22,7 @@ parts:
       - libxrender1
       - libxtst6
 
-  runelite:
+  near-reality:
     plugin: dump
     source-type: local
     source: target/
@@ -34,8 +34,8 @@ parts:
       - libnotify-bin
     override-pull: |
       snapcraftctl pull
-      find . -not -name 'RuneLite.jar' -delete
-      if [ ! -f RuneLite.jar ]
+      find . -not -name 'Near-Reality.jar' -delete
+      if [ ! -f Near-Reality.jar ]
       then
         echo "Run maven prior to running snapcraft!"
         exit 1
@@ -66,8 +66,8 @@ layout:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
 
 apps:
-  runelite:
-    command: bin/java -jar $SNAP/RuneLite.jar
+  near-reality:
+    command: bin/java -jar $SNAP/Near-Reality.jar
     plugs:
       - desktop
       - desktop-legacy
