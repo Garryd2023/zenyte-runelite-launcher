@@ -45,7 +45,7 @@ java -jar packr_${PACKR_VERSION}.jar \
     --jdk \
     osx-jdk \
     --executable \
-    RuneLite \
+    Near-Reality \
     --classpath \
     target/RuneLite.jar \
     --mainclass \
@@ -57,29 +57,29 @@ java -jar packr_${PACKR_VERSION}.jar \
     XX:CompileThreshold=1500 \
     Djna.nosys=true \
     --output \
-    native-osx/RuneLite.app
+    native-osx/Near-Reality.app
 
-cp target/filtered-resources/Info.plist native-osx/RuneLite.app/Contents
+cp target/filtered-resources/Info.plist native-osx/Near-Reality.app/Contents
 
-echo Setting world execute permissions on RuneLite
-pushd native-osx/RuneLite.app
-chmod g+x,o+x Contents/MacOS/RuneLite
+echo Setting world execute permissions on Near-Reality
+pushd native-osx/Near-Reality.app
+chmod g+x,o+x Contents/MacOS/Near-Reality
 popd
 
-codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx/RuneLite.app || true
+codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx/Near-Reality.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
 # note we use Adam-/create-dmg as upstream does not support UDBZ
-create-dmg --format UDBZ native-osx/RuneLite.app native-osx/ || true
+create-dmg --format UDBZ native-osx/Near-Reality.app native-osx/ || true
 
-mv native-osx/RuneLite\ *.dmg native-osx/RuneLite-x64.dmg
+mv native-osx/Near-Reality\ *.dmg native-osx/Near-Reality-x64.dmg
 
-if ! hdiutil imageinfo native-osx/RuneLite-x64.dmg | grep -q "Format: UDBZ" ; then
+if ! hdiutil imageinfo native-osx/Near-Reality-x64.dmg | grep -q "Format: UDBZ" ; then
     echo "Format of resulting dmg was not UDBZ, make sure your create-dmg has support for --format"
     exit 1
 fi
 
 # Notarize app
-if xcrun notarytool submit native-osx/RuneLite-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx/RuneLite-x64.dmg
+if xcrun notarytool submit native-osx/Near-Reality-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+    xcrun stapler staple native-osx/Near-Reality-x64.dmg
 fi
