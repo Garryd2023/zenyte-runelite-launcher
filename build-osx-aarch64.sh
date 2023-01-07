@@ -47,21 +47,21 @@ echo "6552d1e9c86250d84d6f485575d5a20246431984  packr_${PACKR_VERSION}.jar" | sh
 java -jar packr_${PACKR_VERSION}.jar \
 	macos-aarch64-config.json
 
-cp target/filtered-resources/Info.plist native-osx-aarch64/Near-Reality.app/Contents
+cp target/filtered-resources/Info.plist native-osx-aarch64/Zenyte.app/Contents
 
-echo Setting world execute permissions on Near-Reality
-pushd native-osx-aarch64/Near-Reality.app
-chmod g+x,o+x Contents/MacOS/Near-Reality
+echo Setting world execute permissions on Zenyte
+pushd native-osx-aarch64/Zenyte.app
+chmod g+x,o+x Contents/MacOS/Zenyte
 popd
 
-codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx-aarch64/Near-Reality.app || true
+codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx-aarch64/Zenyte.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
-create-dmg native-osx-aarch64/Near-Reality.app native-osx-aarch64/ || true
+create-dmg native-osx-aarch64/Zenyte.app native-osx-aarch64/ || true
 
-mv native-osx-aarch64/Near-Reality\ *.dmg native-osx-aarch64/Near-Reality-aarch64.dmg
+mv native-osx-aarch64/Zenyte\ *.dmg native-osx-aarch64/Zenyte-aarch64.dmg
 
 # Notarize app
-if xcrun notarytool submit native-osx-aarch64/Near-Reality-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx-aarch64/Near-Reality-aarch64.dmg
+if xcrun notarytool submit native-osx-aarch64/Zenyte-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+    xcrun stapler staple native-osx-aarch64/Zenyte-aarch64.dmg
 fi

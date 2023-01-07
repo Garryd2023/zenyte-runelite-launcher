@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Near-Reality
-Comment=Near-Reality is the most ambitious server to date
-Exec=near-reality
+Name=Zenyte
+Comment=Zenyte is the most ambitious server to date
+Exec=zenyte
 Icon=${SNAP}/meta/gui/runelite.png
 Type=Application
 Categories=Game;
 StartupNotify=false
-Keywords=rs;osrs;old;school;runescape;osnr;near-reality;rsps
+Keywords=rs;osrs;old;school;runescape;osnr;zenyte;rsps

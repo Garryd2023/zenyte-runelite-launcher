@@ -2,9 +2,9 @@
     "platform": "mac",
     "icon": "packr/runelite.icns",
     "jdk": "osx-aarch64-jdk",
-    "executable": "Near-Reality",
+    "executable": "Zenyte",
     "classpath": [
-        "target/Near-Reality.jar"
+        "target/Zenyte.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -16,5 +16,5 @@
        "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED",
        "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
     ],
-    "output": "native-osx-aarch64/Near-Reality.app"
+    "output": "native-osx-aarch64/Zenyte.app"
 }

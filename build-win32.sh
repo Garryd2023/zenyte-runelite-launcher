@@ -35,9 +35,9 @@ java -jar packr_${PACKR_VERSION}.jar \
     --jdk \
     win32-jdk \
     --executable \
-    Near-Reality \
+    Zenyte \
     --classpath \
-    target/Near-Reality.jar \
+    target/Zenyte.jar \
     --mainclass \
     net.runelite.launcher.Launcher \
     --vmargs \
@@ -51,16 +51,16 @@ java -jar packr_${PACKR_VERSION}.jar \
 
 # modify packr exe manifest to enable Windows dpi scaling
 resourcehacker \
-    -open native-win32/Near-Reality.exe \
-    -save native-win32/Near-Reality.exe \
+    -open native-win32/Zenyte.exe \
+    -save native-win32/Zenyte.exe \
     -action addoverwrite \
     -res packr/runelite.manifest \
     -mask MANIFEST,1,
 
 # packr on Windows doesn't support icons, so we use resourcehacker to include it
 resourcehacker \
-    -open native-win32/Near-Reality.exe \
-    -save native-win32/Near-Reality.exe \
+    -open native-win32/Zenyte.exe \
+    -save native-win32/Zenyte.exe \
     -action add \
     -res runelite.ico \
     -mask ICONGROUP,MAINICON,

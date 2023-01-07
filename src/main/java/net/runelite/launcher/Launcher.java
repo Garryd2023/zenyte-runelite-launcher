@@ -76,7 +76,7 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public class Launcher
 {
-	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".osnr");
+	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".zenyte");
 	public static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
 	private static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
 	public static final File CRASH_FILES = new File(LOGS_DIR, "jvm_crash_pid_%p.log");

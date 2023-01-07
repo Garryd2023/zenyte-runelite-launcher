@@ -1,10 +1,10 @@
-name: near-reality
+name: zenyte
 base: core20
-title: Near-Reality
+title: Zenyte
 version: git
-summary: Near-Reality is the most ambitious server to date
+summary: Zenyte is the most ambitious server to date
 description: |
-  Near-Reality is the most ambitious server to date
+  Zenyte is the most ambitious server to date
 
 type: app
 grade: stable
@@ -22,7 +22,7 @@ parts:
       - libxrender1
       - libxtst6
 
-  near-reality:
+  zenyte:
     plugin: dump
     source-type: local
     source: target/
@@ -34,8 +34,8 @@ parts:
       - libnotify-bin
     override-pull: |
       snapcraftctl pull
-      find . -not -name 'Near-Reality.jar' -delete
-      if [ ! -f Near-Reality.jar ]
+      find . -not -name 'Zenyte.jar' -delete
+      if [ ! -f Zenyte.jar ]
       then
         echo "Run maven prior to running snapcraft!"
         exit 1
@@ -66,8 +66,8 @@ layout:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
 
 apps:
-  near-reality:
-    command: bin/java -jar $SNAP/Near-Reality.jar
+  zenyte:
+    command: bin/java -jar $SNAP/Zenyte.jar
     plugs:
       - desktop
       - desktop-legacy

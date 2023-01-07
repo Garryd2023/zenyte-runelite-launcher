@@ -45,9 +45,9 @@ java -jar packr_${PACKR_VERSION}.jar \
     --jdk \
     osx-jdk \
     --executable \
-    Near-Reality \
+    Zenyte \
     --classpath \
-    target/Near-Reality.jar \
+    target/Zenyte.jar \
     --mainclass \
     net.runelite.launcher.Launcher \
     --vmargs \
@@ -57,29 +57,29 @@ java -jar packr_${PACKR_VERSION}.jar \
     XX:CompileThreshold=1500 \
     Djna.nosys=true \
     --output \
-    native-osx/Near-Reality.app
+    native-osx/Zenyte.app
 
-cp target/filtered-resources/Info.plist native-osx/Near-Reality.app/Contents
+cp target/filtered-resources/Info.plist native-osx/Zenyte.app/Contents
 
-echo Setting world execute permissions on Near-Reality
-pushd native-osx/Near-Reality.app
-chmod g+x,o+x Contents/MacOS/Near-Reality
+echo Setting world execute permissions on Zenyte
+pushd native-osx/Zenyte.app
+chmod g+x,o+x Contents/MacOS/Zenyte
 popd
 
-codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx/Near-Reality.app || true
+codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx/Zenyte.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
 # note we use Adam-/create-dmg as upstream does not support UDBZ
-create-dmg --format UDBZ native-osx/Near-Reality.app native-osx/ || true
+create-dmg --format UDBZ native-osx/Zenyte.app native-osx/ || true
 
-mv native-osx/Near-Reality\ *.dmg native-osx/Near-Reality-x64.dmg
+mv native-osx/Zenyte\ *.dmg native-osx/Zenyte-x64.dmg
 
-if ! hdiutil imageinfo native-osx/Near-Reality-x64.dmg | grep -q "Format: UDBZ" ; then
+if ! hdiutil imageinfo native-osx/Zenyte-x64.dmg | grep -q "Format: UDBZ" ; then
     echo "Format of resulting dmg was not UDBZ, make sure your create-dmg has support for --format"
     exit 1
 fi
 
 # Notarize app
-if xcrun notarytool submit native-osx/Near-Reality-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx/Near-Reality-x64.dmg
+if xcrun notarytool submit native-osx/Zenyte-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+    xcrun stapler staple native-osx/Zenyte-x64.dmg
 fi
