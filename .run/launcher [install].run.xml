@@ -12,7 +12,6 @@
             <list>
               <option value="install" />
               <option value="-Dskiptests" />
-              <option value="-Dcheckstyle.skip" />
             </list>
           </option>
           <option name="pomFileName" value="pom.xml" />
