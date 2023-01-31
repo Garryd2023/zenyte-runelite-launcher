@@ -42,6 +42,8 @@ import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static net.runelite.launcher.Constants.SERVER_NAME;
+
 @Slf4j
 public class FatalErrorDialog extends JDialog
 {
@@ -96,7 +98,7 @@ public class FatalErrorDialog extends JDialog
 			}
 		});
 
-		setTitle("Fatal error starting " + Launcher.SERVER_NAME);
+		setTitle("Fatal error starting " + SERVER_NAME);
 		setLayout(new BorderLayout());
 
 		Container pane = getContentPane();
@@ -106,7 +108,7 @@ public class FatalErrorDialog extends JDialog
 		leftPane.setBackground(DARKER_GRAY_COLOR);
 		leftPane.setLayout(new BorderLayout());
 
-		JLabel title = new JLabel("There was a fatal error starting " + Launcher.SERVER_NAME);
+		JLabel title = new JLabel("There was a fatal error starting " + SERVER_NAME);
 		title.setForeground(Color.WHITE);
 		title.setFont(font.deriveFont(16.f));
 		title.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -189,7 +191,7 @@ public class FatalErrorDialog extends JDialog
 	{
 		if (err instanceof VerificationException || err instanceof GeneralSecurityException)
 		{
-			new FatalErrorDialog(formatExceptionMessage(Launcher.SERVER_NAME + " was unable to verify the security of its connection to the internet while " +
+			new FatalErrorDialog(formatExceptionMessage(SERVER_NAME + " was unable to verify the security of its connection to the internet while " +
 				action + ". You may have a misbehaving antivirus, internet service provider, a proxy, or an incomplete" +
 				" java installation.", err))
 				.open();
@@ -198,7 +200,7 @@ public class FatalErrorDialog extends JDialog
 
 		if (err instanceof SocketException) // includes ConnectException
 		{
-			new FatalErrorDialog(formatExceptionMessage(Launcher.SERVER_NAME + " is unable to connect to a required server while " + action + ". " +
+			new FatalErrorDialog(formatExceptionMessage(SERVER_NAME + " is unable to connect to a required server while " + action + ". " +
 				"Please check your internet connection.", err))
 				.open();
 			return;
@@ -206,7 +208,7 @@ public class FatalErrorDialog extends JDialog
 
 		if (err instanceof UnknownHostException)
 		{
-			new FatalErrorDialog(formatExceptionMessage(Launcher.SERVER_NAME + " is unable to resolve the address of a required server while " + action + ". " +
+			new FatalErrorDialog(formatExceptionMessage(SERVER_NAME + " is unable to resolve the address of a required server while " + action + ". " +
 				"Your DNS resolver may be misconfigured, pointing to an inaccurate resolver, or your internet connection may " +
 				"be down.", err))
 				.addButton("Change your DNS resolver", () -> LinkBrowser.browse(LauncherProperties.getDNSChangeLink()))
@@ -218,13 +220,13 @@ public class FatalErrorDialog extends JDialog
 		{
 			if (err.getCause() instanceof CertificateException)
 			{
-				new FatalErrorDialog(formatExceptionMessage(Launcher.SERVER_NAME + " was unable to verify the certificate of a required server while " + action + ". " +
+				new FatalErrorDialog(formatExceptionMessage(SERVER_NAME + " was unable to verify the certificate of a required server while " + action + ". " +
 					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.", err))
 					.open();
 			}
 			else
 			{
-				new FatalErrorDialog(formatExceptionMessage(Launcher.SERVER_NAME + " was unable to establish a SSL/TLS connection with a required server while " + action + ". " +
+				new FatalErrorDialog(formatExceptionMessage(SERVER_NAME + " was unable to establish a SSL/TLS connection with a required server while " + action + ". " +
 					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.", err))
 					.open();
 			}
@@ -232,7 +234,7 @@ public class FatalErrorDialog extends JDialog
 			return;
 		}
 
-		new FatalErrorDialog(formatExceptionMessage(Launcher.SERVER_NAME + " encountered a fatal error while " + action + ".", err)).open();
+		new FatalErrorDialog(formatExceptionMessage(SERVER_NAME + " encountered a fatal error while " + action + ".", err)).open();
 	}
 
 	private static String formatExceptionMessage(String message, Throwable err)

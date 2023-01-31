@@ -66,7 +66,7 @@ class ReflectionLauncher
 				log.error("Unable to launch client", ex);
 			}
 		});
-		thread.setName(Launcher.SERVER_NAME);
+		thread.setName(Constants.SERVER_NAME);
 		thread.start();
 	}
 }

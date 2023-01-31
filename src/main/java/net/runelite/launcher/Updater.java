@@ -54,13 +54,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.runelite.launcher.Constants.SERVER_NAME;
 import static net.runelite.launcher.Launcher.*;
 
 @Slf4j
 class Updater
 {
 	private static final String LAUNCHER_SETTINGS = "settings.json";
-	private static final String RUNELITE_APP = "/Applications/" + Launcher.SERVER_NAME + ".app";
+	private static final String RUNELITE_APP = "/Applications/" + SERVER_NAME + ".app";
 
 	static void update(Bootstrap bootstrap, OptionSet options, String[] args)
 	{
@@ -204,7 +205,7 @@ class Updater
 			delete(Path.of(RUNELITE_APP));
 
 			log.debug("Copying new install from {}", mountPoint);
-			copy(Path.of(mountPoint, Launcher.SERVER_NAME + ".app"), Path.of(RUNELITE_APP));
+			copy(Path.of(mountPoint, SERVER_NAME + ".app"), Path.of(RUNELITE_APP));
 
 			log.debug("Unmounting dmg");
 			pb = new ProcessBuilder(
@@ -285,7 +286,7 @@ class Updater
 
 		try
 		{
-			installLocation = regQueryString("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + Launcher.SERVER_NAME + " Launcher_is1", "InstallLocation");
+			installLocation = regQueryString("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + SERVER_NAME + " Launcher_is1", "InstallLocation");
 		}
 		catch (UnsatisfiedLinkError | RuntimeException ex)
 		{

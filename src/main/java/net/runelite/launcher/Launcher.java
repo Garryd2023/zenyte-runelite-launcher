@@ -68,13 +68,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static net.runelite.launcher.Constants.*;
+
 @Slf4j
 public class Launcher
 {
-
-	public static final String SERVER_NAME = "Zenyte";
-	public static final String SERVER_NAME_LOWERCASE = SERVER_NAME.toLowerCase();
-	public static final String SERVER_WEBSITE_SHORT = "Zenyte.com";
 
 	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), "." + SERVER_NAME_LOWERCASE);
 	public static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
