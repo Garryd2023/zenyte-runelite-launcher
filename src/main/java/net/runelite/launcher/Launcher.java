@@ -71,13 +71,18 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public class Launcher
 {
-	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".runelite");
+
+	public static final String SERVER_NAME = "Zenyte";
+	public static final String SERVER_NAME_LOWERCASE = SERVER_NAME.toLowerCase();
+	public static final String SERVER_WEBSITE_SHORT = "Zenyte.com";
+
+	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), "." + SERVER_NAME_LOWERCASE);
 	public static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
 	private static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
 	public static final File CRASH_FILES = new File(LOGS_DIR, "jvm_crash_pid_%p.log");
-	private static final String USER_AGENT = "RuneLite/" + LauncherProperties.getVersion();
-	static final String LAUNCHER_EXECUTABLE_NAME_WIN = "RuneLite.exe";
-	static final String LAUNCHER_EXECUTABLE_NAME_OSX = "RuneLite";
+	private static final String USER_AGENT = SERVER_NAME + "/" + LauncherProperties.getVersion();
+	static final String LAUNCHER_EXECUTABLE_NAME_WIN = SERVER_NAME + ".exe";
+	static final String LAUNCHER_EXECUTABLE_NAME_OSX = SERVER_NAME;
 
 	public static void main(String[] args)
 	{
@@ -134,7 +139,7 @@ public class Launcher
 		{
 			log.error("unable to parse arguments", ex);
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("RuneLite was unable to parse the provided application arguments: " + ex.getMessage())
+				new FatalErrorDialog(SERVER_NAME + " was unable to parse the provided application arguments: " + ex.getMessage())
 					.open());
 			throw ex;
 		}
@@ -223,7 +228,7 @@ public class Launcher
 				jvmProps.put("runelite.insecure-skip-tls-verification", "true");
 			}
 
-			log.info("RuneLite Launcher version {}", LauncherProperties.getVersion());
+			log.info(SERVER_NAME + " Launcher version {}", LauncherProperties.getVersion());
 			log.info("Setting hardware acceleration to {}", hardwareAccelerationMode);
 
 			// java2d properties have to be set prior to the graphics environment startup
@@ -306,7 +311,7 @@ public class Launcher
 			if (!REPO_DIR.exists() && !REPO_DIR.mkdirs())
 			{
 				log.error("unable to create repo directory {}", REPO_DIR);
-				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create RuneLite directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
+				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create " + SERVER_NAME + " directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
 				return;
 			}
 
@@ -403,7 +408,7 @@ public class Launcher
 			if (!postInstall)
 			{
 				SwingUtilities.invokeLater(() ->
-					new FatalErrorDialog("RuneLite has encountered an unexpected error during startup.")
+					new FatalErrorDialog(SERVER_NAME + " has encountered an unexpected error during startup.")
 						.open());
 			}
 		}
@@ -481,19 +486,19 @@ public class Launcher
 		if (launcherTooOld)
 		{
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("Your launcher is too old to start RuneLite. Please download and install a more " +
-					"recent one from RuneLite.net.")
-					.addButton("RuneLite.net", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
+				new FatalErrorDialog("Your launcher is too old to start " + SERVER_NAME + ". Please download and install a more " +
+					"recent one from " + SERVER_WEBSITE_SHORT)
+					.addButton(SERVER_WEBSITE_SHORT, () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
 					.open());
 			return true;
 		}
 		if (jvmTooOld)
 		{
 			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog("Your Java installation is too old. RuneLite now requires Java " +
-					bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from RuneLite.net," +
+				new FatalErrorDialog("Your Java installation is too old. " + SERVER_NAME + " now requires Java " +
+					bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from " + SERVER_WEBSITE_SHORT + "," +
 					" or install a newer version of Java.")
-					.addButton("RuneLite.net", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
+					.addButton(SERVER_WEBSITE_SHORT, () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
 					.open());
 			return true;
 		}

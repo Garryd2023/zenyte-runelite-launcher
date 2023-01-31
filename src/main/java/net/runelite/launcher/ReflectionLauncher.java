@@ -24,6 +24,9 @@
  */
 package net.runelite.launcher;
 
+import lombok.extern.slf4j.Slf4j;
+
+import javax.swing.*;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -31,8 +34,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.List;
-import javax.swing.UIManager;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class ReflectionLauncher
@@ -65,7 +66,7 @@ class ReflectionLauncher
 				log.error("Unable to launch client", ex);
 			}
 		});
-		thread.setName("RuneLite");
+		thread.setName(Launcher.SERVER_NAME);
 		thread.start();
 	}
 }

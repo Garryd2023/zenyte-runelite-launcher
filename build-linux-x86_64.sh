@@ -36,20 +36,20 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
 # Note: Host umask may have checked out this directory with g/o permissions blank
 chmod -R u=rwX,go=rX appimage
 # ...ditto for the build process
-chmod 644 target/RuneLite.jar
+chmod 644 target/Zenyte.jar
 
 java -jar packr_${PACKR_VERSION}.jar \
     packr/linux-x64-config.json
 
-pushd native-linux-x86_64/RuneLite.AppDir
+pushd native-linux-x86_64/Zenyte.AppDir
 mkdir -p jre/lib/amd64/server/
 ln -s ../../server/libjvm.so jre/lib/amd64/server/ # packr looks for libjvm at this hardcoded path
 
 # Symlink AppRun -> RuneLite
-ln -s RuneLite AppRun
+ln -s Zenyte AppRun
 
 # Ensure RuneLite is executable to all users
-chmod 755 RuneLite
+chmod 755 Zenyte
 popd
 
 if ! [ -f appimagetool-x86_64.AppImage ] ; then
@@ -61,5 +61,5 @@ fi
 echo "df3baf5ca5facbecfc2f3fa6713c29ab9cefa8fd8c1eac5d283b79cab33e4acb  appimagetool-x86_64.AppImage" | sha256sum -c
 
 ./appimagetool-x86_64.AppImage \
-	native-linux-x86_64/RuneLite.AppDir/ \
-	native-linux-x86_64/RuneLite.AppImage
+	native-linux-x86_64/Zenyte.AppDir/ \
+	native-linux-x86_64/Zenyte.AppImage

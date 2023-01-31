@@ -1,10 +1,10 @@
 [Setup]
-AppName=RuneLite Launcher
-AppPublisher=RuneLite
-UninstallDisplayName=RuneLite
+AppName=Zenyte Launcher
+AppPublisher=Zenyte
+UninstallDisplayName=Zenyte
 AppVersion=${project.version}
-AppSupportURL=https://runelite.net/
-DefaultDirName={localappdata}\RuneLite
+AppSupportURL=https://zenyte.com
+DefaultDirName={localappdata}\Zenyte
 
 ; ~30 mb for the repo the launcher downloads
 ExtraDiskSpaceRequired=30000000
@@ -13,32 +13,32 @@ PrivilegesRequired=lowest
 
 WizardSmallImageFile=${basedir}/innosetup/runelite_small.bmp
 SetupIconFile=${basedir}/runelite.ico
-UninstallDisplayIcon={app}\RuneLite.exe
+UninstallDisplayIcon={app}\Zenyte.exe
 
 Compression=lzma2
 SolidCompression=yes
 
 OutputDir=${basedir}
-OutputBaseFilename=RuneLiteSetup32
+OutputBaseFilename=ZenyteSetup32
 
 [Tasks]
 Name: DesktopIcon; Description: "Create a &desktop icon";
 
 [Files]
-Source: "${basedir}\native-win32\RuneLite.exe"; DestDir: "{app}"
-Source: "${basedir}\native-win32\RuneLite.jar"; DestDir: "{app}"
+Source: "${basedir}\native-win32\Zenyte.exe"; DestDir: "{app}"
+Source: "${basedir}\native-win32\Zenyte.jar"; DestDir: "{app}"
 Source: "${basedir}\native\build32\Release\launcher_x86.dll"; DestDir: "{app}"
 Source: "${basedir}\native-win32\config.json"; DestDir: "{app}"
 Source: "${basedir}\native-win32\jre\*"; DestDir: "{app}\jre"; Flags: recursesubdirs
 
 [Icons]
 ; start menu
-Name: "{userprograms}\RuneLite"; Filename: "{app}\RuneLite.exe"
-Name: "{userdesktop}\RuneLite"; Filename: "{app}\RuneLite.exe"; Tasks: DesktopIcon
+Name: "{userprograms}\Zenyte"; Filename: "{app}\Zenyte.exe"
+Name: "{userdesktop}\Zenyte"; Filename: "{app}\Zenyte.exe"; Tasks: DesktopIcon
 
 [Run]
-Filename: "{app}\RuneLite.exe"; Parameters: "--postinstall"; Flags: nowait
-Filename: "{app}\RuneLite.exe"; Description: "&Open RuneLite"; Flags: postinstall skipifsilent nowait
+Filename: "{app}\Zenyte.exe"; Parameters: "--postinstall"; Flags: nowait
+Filename: "{app}\Zenyte.exe"; Description: "&Open Zenyte"; Flags: postinstall skipifsilent nowait
 
 [InstallDelete]
 ; Delete the old jvm so it doesn't try to load old stuff with the new vm and crash

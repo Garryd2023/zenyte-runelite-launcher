@@ -1,9 +1,9 @@
 {
   "platform": "windows64",
   "jdk": "win64-jdk",
-  "executable": "RuneLite",
+  "executable": "Zenyte",
   "classpath": [
-    "target/RuneLite.jar"
+    "target/Zenyte.jar"
   ],
   "mainclass": "net.runelite.launcher.Launcher",
   "vmargs": [

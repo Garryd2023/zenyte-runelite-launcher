@@ -61,8 +61,8 @@ jobs:
       with:
         name: windows
         path: |
-          RuneLiteSetup.exe
-          RuneLiteSetup32.exe
+          ZenyteSetup.exe
+          ZenyteSetup32.exe
         if-no-files-found: error
   linux:
     runs-on: ubuntu-20.04
@@ -90,14 +90,14 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: jar
-        path: target/RuneLite.jar
+        path: target/Zenyte.jar
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
         name: linux
         path: |
-          native-linux-x86_64/RuneLite.AppImage
-          native-linux-aarch64/RuneLite-aarch64.AppImage
+          native-linux-x86_64/Zenyte.AppImage
+          native-linux-aarch64/Zenyte-aarch64.AppImage
         if-no-files-found: error
   macos:
     runs-on: macos-11
@@ -134,6 +134,6 @@ jobs:
       with:
         name: macos
         path: |
-          native-osx/RuneLite-x64.dmg
-          native-osx-aarch64/RuneLite-aarch64.dmg
+          native-osx/Zenyte-x64.dmg
+          native-osx-aarch64/Zenyte-aarch64.dmg
         if-no-files-found: error

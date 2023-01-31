@@ -1,9 +1,9 @@
 {
     "platform": "linuxaarch64",
     "jdk": "linux-aarch64-jdk",
-    "executable": "RuneLite",
+    "executable": "Zenyte",
     "classpath": [
-        "target/RuneLite.jar"
+        "target/Zenyte.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -12,7 +12,7 @@
        "-Xss2m",
        "-XX:CompileThreshold=1500"
     ],
-    "output": "native-linux-aarch64/RuneLite.AppDir/",
+    "output": "native-linux-aarch64/Zenyte.AppDir/",
     "resources": [
       "target/filtered-resources/runelite.desktop",
       "appimage/runelite.png"

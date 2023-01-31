@@ -28,26 +28,21 @@ import com.google.common.base.MoreObjects;
 import com.google.common.escape.Escapers;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import joptsimple.OptionSet;
+import lombok.extern.slf4j.Slf4j;
+import net.runelite.launcher.beans.Bootstrap;
+import net.runelite.launcher.beans.Update;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.annotation.Nonnull;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
 import java.nio.channels.FileChannel;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.CopyOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -58,28 +53,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import joptsimple.OptionSet;
-import lombok.extern.slf4j.Slf4j;
-import static net.runelite.launcher.Launcher.LAUNCHER_EXECUTABLE_NAME_OSX;
-import static net.runelite.launcher.Launcher.LAUNCHER_EXECUTABLE_NAME_WIN;
-import static net.runelite.launcher.Launcher.compareVersion;
-import static net.runelite.launcher.Launcher.download;
-import static net.runelite.launcher.Launcher.regQueryString;
-import net.runelite.launcher.beans.Bootstrap;
-import net.runelite.launcher.beans.Update;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import static net.runelite.launcher.Launcher.*;
 
 @Slf4j
 class Updater
 {
 	private static final String LAUNCHER_SETTINGS = "settings.json";
-	private static final String RUNELITE_APP = "/Applications/RuneLite.app";
+	private static final String RUNELITE_APP = "/Applications/" + Launcher.SERVER_NAME + ".app";
 
 	static void update(Bootstrap bootstrap, OptionSet options, String[] args)
 	{
@@ -223,7 +204,7 @@ class Updater
 			delete(Path.of(RUNELITE_APP));
 
 			log.debug("Copying new install from {}", mountPoint);
-			copy(Path.of(mountPoint, "RuneLite.app"), Path.of(RUNELITE_APP));
+			copy(Path.of(mountPoint, Launcher.SERVER_NAME + ".app"), Path.of(RUNELITE_APP));
 
 			log.debug("Unmounting dmg");
 			pb = new ProcessBuilder(
@@ -304,7 +285,7 @@ class Updater
 
 		try
 		{
-			installLocation = regQueryString("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\RuneLite Launcher_is1", "InstallLocation");
+			installLocation = regQueryString("Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + Launcher.SERVER_NAME + " Launcher_is1", "InstallLocation");
 		}
 		catch (UnsatisfiedLinkError | RuntimeException ex)
 		{

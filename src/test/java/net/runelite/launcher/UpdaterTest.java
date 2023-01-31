@@ -24,9 +24,11 @@
  */
 package net.runelite.launcher;
 
-import java.io.InputStream;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
 
 public class UpdaterTest
 {
@@ -36,7 +38,7 @@ public class UpdaterTest
 		try (InputStream in = getClass().getResourceAsStream("/hdiutil-mount-plist.xml"))
 		{
 			String mountPoint = Updater.parseHdiutilPlist(in);
-			assertEquals("/Volumes/RuneLite", mountPoint);
+			assertEquals("/Volumes/" + Launcher.SERVER_NAME, mountPoint);
 		}
 	}
 }

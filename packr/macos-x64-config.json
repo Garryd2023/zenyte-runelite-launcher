@@ -2,9 +2,9 @@
     "platform": "mac64",
     "icon": "packr/runelite.icns",
     "jdk": "osx-jdk",
-    "executable": "RuneLite",
+    "executable": "Zenyte",
     "classpath": [
-        "target/RuneLite.jar"
+        "target/Zenyte.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -12,5 +12,5 @@
        "-Xss2m",
        "-XX:CompileThreshold=1500"
     ],
-    "output": "native-osx/RuneLite.app"
+    "output": "native-osx/Zenyte.app"
 }

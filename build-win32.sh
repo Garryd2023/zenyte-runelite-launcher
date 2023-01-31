@@ -34,12 +34,12 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
 java -jar packr_${PACKR_VERSION}.jar \
     packr/win-x86-config.json
 
-tools/rcedit-x64 native-win32/RuneLite.exe \
+tools/rcedit-x64 native-win32/Zenyte.exe \
   --application-manifest packr/runelite.manifest \
   --set-icon runelite.ico
 
-echo RuneLite.exe 32bit sha256sum
-sha256sum native-win32/RuneLite.exe
+echo Zenyte.exe 32bit sha256sum
+sha256sum native-win32/Zenyte.exe
 
 # We use the filtered iss file
 iscc target/filtered-resources/runelite32.iss
