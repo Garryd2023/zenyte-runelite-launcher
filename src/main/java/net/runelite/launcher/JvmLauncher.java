@@ -24,11 +24,9 @@
  */
 package net.runelite.launcher;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.launcher.beans.Bootstrap;
 import org.slf4j.Logger;
@@ -72,12 +71,13 @@ class JvmLauncher
 
 	static void launch(
 		Bootstrap bootstrap,
-		List<File> results,
+		List<File> classpath,
 		Collection<String> clientArgs,
-		List<String> extraJvmParams) throws IOException
+		Map<String, String> jvmProps,
+		List<String> jvmArgs) throws IOException
 	{
 		StringBuilder classPath = new StringBuilder();
-		for (File f : results)
+		for (var f : classpath)
 		{
 			if (classPath.length() > 0)
 			{
@@ -86,6 +86,7 @@ class JvmLauncher
 
 			classPath.append(f.getAbsolutePath());
 		}
+
 		String javaExePath;
 		try
 		{
@@ -97,7 +98,6 @@ class JvmLauncher
 			return;
 		}
 
-
 		List<String> arguments = new ArrayList<>();
 		arguments.add(javaExePath);
 		arguments.add("-cp");
@@ -108,7 +108,11 @@ class JvmLauncher
 		{
 			arguments.addAll(Arrays.asList(jvmArguments));
 		}
-		arguments.addAll(extraJvmParams);
+		for (Map.Entry<String, String> entry : jvmProps.entrySet())
+		{
+			arguments.add("-D" + entry.getKey() + "=" + entry.getValue());
+		}
+		arguments.addAll(jvmArgs);
 
 		arguments.add(LauncherProperties.getMain());
 		arguments.addAll(clientArgs);
@@ -116,22 +120,25 @@ class JvmLauncher
 		logger.info("Running {}", arguments);
 
 		ProcessBuilder builder = new ProcessBuilder(arguments.toArray(new String[0]));
-		builder.redirectErrorStream(true);
+		builder.inheritIO();
 		Process process = builder.start();
-
-		SplashScreen.stop();
 
 		if (log.isDebugEnabled())
 		{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			for (String line; (line = reader.readLine()) != null; )
+			SplashScreen.stop();
+
+			try
 			{
-				System.out.println(line);
+				process.waitFor();
+			}
+			catch (InterruptedException e)
+			{
+				throw new RuntimeException(e);
 			}
 		}
 	}
 
-	private static String[] getJvmArguments(Bootstrap bootstrap)
+	static String[] getJvmArguments(Bootstrap bootstrap)
 	{
 		if (Launcher.isJava17())
 		{

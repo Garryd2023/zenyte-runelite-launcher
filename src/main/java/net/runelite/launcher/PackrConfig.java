@@ -26,6 +26,8 @@ package net.runelite.launcher;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,10 +38,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.launcher.beans.Bootstrap;
@@ -47,12 +45,16 @@ import net.runelite.launcher.beans.Bootstrap;
 @Slf4j
 class PackrConfig
 {
-	// Update the packr vmargs
-	static void updateLauncherArgs(Bootstrap bootstrap, Collection<String> extraJvmArgs)
+	// Update the packr config
+	static void updateLauncherArgs(Bootstrap bootstrap)
 	{
-		File configFile = new File("config.json").getAbsoluteFile();
+		var os = OS.getOs();
+		if (os != OS.OSType.Windows && os != OS.OSType.MacOS)
+		{
+			return;
+		}
 
-		// The AppImage mounts the packr directory on a readonly filesystem, so we can't update the vm args there
+		File configFile = new File("config.json").getAbsoluteFile();
 		if (!configFile.exists() || !configFile.canWrite())
 		{
 			return;
@@ -66,9 +68,17 @@ class PackrConfig
 		{
 			config = gson.fromJson(new InputStreamReader(fin), Map.class);
 		}
-		catch (IOException e)
+		catch (IOException | JsonIOException | JsonSyntaxException e)
 		{
-			log.warn("error updating packr vm args!", e);
+			log.warn("error deserializing packr vm args!", e);
+			return;
+		}
+
+		if (config == null)
+		{
+			// this can't happen when run from the launcher, because an invalid packr config would prevent the launcher itself
+			// from starting. But could happen if the jar launcher was run separately.
+			log.warn("packr config is null!");
 			return;
 		}
 
@@ -79,12 +89,8 @@ class PackrConfig
 			return;
 		}
 
-		// Insert JVM arguments to config.json because some of them require restart
-		List<String> args = new ArrayList<>();
-		args.addAll(Arrays.asList(argsArr));
-		args.addAll(extraJvmArgs);
-
-		config.put("vmArgs", args);
+		config.put("vmArgs", argsArr);
+		config.put("env", getEnv(bootstrap));
 
 		try
 		{
@@ -148,6 +154,21 @@ class PackrConfig
 				return args != null ? args : bootstrap.getLauncherJvm11Arguments();
 			default:
 				return bootstrap.getLauncherJvm11Arguments();
+		}
+	}
+
+	private static Map<String, String> getEnv(Bootstrap bootstrap)
+	{
+		switch (OS.getOs())
+		{
+			case Windows:
+				return bootstrap.getLauncherWindowsEnv();
+			case MacOS:
+				return bootstrap.getLauncherMacEnv();
+			case Linux:
+				return bootstrap.getLauncherLinuxEnv();
+			default:
+				return null;
 		}
 	}
 }

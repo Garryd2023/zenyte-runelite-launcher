@@ -37,11 +37,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class ReflectionLauncher
 {
-	static void launch(List<File> results, Collection<String> clientArgs) throws MalformedURLException
+	static void launch(List<File> classpath, Collection<String> clientArgs) throws MalformedURLException
 	{
-		URL[] jarUrls = new URL[results.size()];
+		URL[] jarUrls = new URL[classpath.size()];
 		int i = 0;
-		for (File file : results)
+		for (var file : classpath)
 		{
 			log.debug("Adding jar: {}", file);
 			jarUrls[i++] = file.toURI().toURL();
@@ -51,26 +51,21 @@ class ReflectionLauncher
 		URLClassLoader loader = new URLClassLoader(jarUrls, parent);
 
 		UIManager.put("ClassLoader", loader); // hack for Substance
-		Thread thread = new Thread()
+		Thread thread = new Thread(() ->
 		{
-			public void run()
+			try
 			{
-				try
-				{
-					Class<?> mainClass = loader.loadClass(LauncherProperties.getMain());
+				Class<?> mainClass = loader.loadClass(LauncherProperties.getMain());
 
-					Method main = mainClass.getMethod("main", String[].class);
-					main.invoke(null, (Object) clientArgs.toArray(new String[0]));
-				}
-				catch (Exception ex)
-				{
-					log.error("Unable to launch client", ex);
-				}
+				Method main = mainClass.getMethod("main", String[].class);
+				main.invoke(null, (Object) clientArgs.toArray(new String[0]));
 			}
-		};
+			catch (Exception ex)
+			{
+				log.error("Unable to launch client", ex);
+			}
+		});
 		thread.setName("RuneLite");
 		thread.start();
-
-		SplashScreen.stop();
 	}
 }

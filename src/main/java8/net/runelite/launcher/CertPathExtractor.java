@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2022, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,36 +22,37 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.launcher.beans;
+package net.runelite.launcher;
 
-import java.util.Map;
-import lombok.Data;
+import javax.net.ssl.SSLHandshakeException;
+import sun.security.provider.certpath.AdjacencyList;
+import sun.security.provider.certpath.SunCertPathBuilderException;
+import sun.security.validator.ValidatorException;
 
-@Data
-public class Bootstrap
+class CertPathExtractor
 {
-	private Artifact[] artifacts;
-
-	private String[] clientJvm9Arguments;
-
-	private String[] clientJvm17Arguments;
-	private String[] clientJvm17WindowsArguments;
-	private String[] clientJvm17MacArguments;
-
-	private String[] launcherJvm11WindowsArguments;
-	private String[] launcherJvm11MacArguments;
-	private String[] launcherJvm11Arguments;
-
-	private String[] launcherJvm17WindowsArguments;
-	private String[] launcherJvm17MacArguments;
-	private String[] launcherJvm17Arguments;
-
-	private String requiredLauncherVersion;
-	private String requiredJVMVersion;
-
-	private Map<String, String> launcherWindowsEnv;
-	private Map<String, String> launcherMacEnv;
-	private Map<String, String> launcherLinuxEnv;
-
-	private Update[] updates;
+	static String extract(Throwable ex)
+	{
+		try
+		{
+			if (ex instanceof SSLHandshakeException)
+			{
+				ex = ex.getCause();
+				if (ex instanceof ValidatorException)
+				{
+					ex = ex.getCause();
+					if (ex instanceof SunCertPathBuilderException)
+					{
+						SunCertPathBuilderException pathBuilderEx = (SunCertPathBuilderException) ex;
+						AdjacencyList adjList = pathBuilderEx.getAdjacencyList();
+						return adjList.toString();
+					}
+				}
+			}
+		}
+		catch (Throwable ex_)
+		{
+		}
+		return null;
+	}
 }

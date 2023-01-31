@@ -28,16 +28,53 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.archivepatcher.applier.FileByFileV1DeltaApplier;
 import com.google.archivepatcher.shared.DefaultDeflateCompatibilityWindow;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Streams;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 import com.google.gson.Gson;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.IntConsumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import javax.swing.SwingUtilities;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -49,85 +86,74 @@ import net.runelite.launcher.beans.Diff;
 import net.runelite.launcher.beans.Platform;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.swing.*;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.SignatureException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.function.IntConsumer;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
-
 @Slf4j
 public class Launcher
 {
-	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".zenyte");
+	private static final File RUNELITE_DIR = new File(System.getProperty("user.home"), ".runelite");
 	public static final File LOGS_DIR = new File(RUNELITE_DIR, "logs");
 	private static final File REPO_DIR = new File(RUNELITE_DIR, "repository2");
 	public static final File CRASH_FILES = new File(LOGS_DIR, "jvm_crash_pid_%p.log");
 	private static final String USER_AGENT = "RuneLite/" + LauncherProperties.getVersion();
+	static final String LAUNCHER_EXECUTABLE_NAME_WIN = "RuneLite.exe";
+	static final String LAUNCHER_EXECUTABLE_NAME_OSX = "RuneLite";
 
 	public static void main(String[] args)
 	{
-		OptionParser parser = new OptionParser();
+		OptionParser parser = new OptionParser(false);
 		parser.allowsUnrecognizedOptions();
+		parser.accepts("postinstall", "Perform post-install tasks");
 		parser.accepts("clientargs", "Arguments passed to the client").withRequiredArg();
-		parser.accepts("nojvm", "Launch the client in this VM instead of launching a new VM");
+		parser.accepts("nojvm", "Launch the client in this VM instead of launching a new VM. Equivalent to --launch-mode=REFLECT");
 		parser.accepts("debug", "Enable debug logging");
 		parser.accepts("nodiff", "Always download full artifacts instead of diffs");
 		parser.accepts("insecure-skip-tls-verification", "Disable TLS certificate and hostname verification");
 		parser.accepts("scale", "Custom scale factor for Java 2D").withRequiredArg();
+		parser.accepts("noupdate", "Skips the launcher self-update");
 		parser.accepts("help", "Show this text (use --clientargs --help for client help)").forHelp();
+		parser.accepts("classpath", "Classpath for the client").withRequiredArg();
+		parser.accepts("J", "JVM argument (FORK or JVM launch mode only)").withRequiredArg();
 
 		if (OS.getOs() == OS.OSType.MacOS)
 		{
-			parser.accepts("psn").withRequiredArg();
+			// Parse macos PSN, eg: -psn_0_352342
+			parser.accepts("p").withRequiredArg();
 		}
 
-		HardwareAccelerationMode defaultMode;
-		switch (OS.getOs())
-		{
-			case Windows:
-				defaultMode = HardwareAccelerationMode.DIRECTDRAW;
-				break;
-			case MacOS:
-				defaultMode = HardwareAccelerationMode.OPENGL;
-				break;
-			case Linux:
-			default:
-				defaultMode = HardwareAccelerationMode.OFF;
-				break;
-		}
+		final ArgumentAcceptingOptionSpec<LaunchMode> launchModeOptionSpec = parser.accepts("launch-mode")
+			.withRequiredArg()
+			.ofType(LaunchMode.class)
+			.defaultsTo(LaunchMode.AUTO);
 
 		// Create typed argument for the hardware acceleration mode
 		final ArgumentAcceptingOptionSpec<HardwareAccelerationMode> mode = parser.accepts("mode")
 			.withRequiredArg()
 			.ofType(HardwareAccelerationMode.class)
-			.defaultsTo(defaultMode);
+			.defaultsTo(HardwareAccelerationMode.defaultMode(OS.getOs()));
 
-		OptionSet options;
+		final OptionSet options;
+		final HardwareAccelerationMode hardwareAccelerationMode;
+		final LaunchMode launchMode;
 		try
 		{
 			options = parser.parse(args);
+			hardwareAccelerationMode = options.valueOf(mode);
+
+			// we use runelite.launcher.reflect to signal to use the reflect launch mode from packr
+			if (options.has("nojvm") || "true".equals(System.getProperty("runelite.launcher.reflect")))
+			{
+				launchMode = LaunchMode.REFLECT;
+			}
+			else
+			{
+				launchMode = options.valueOf(launchModeOptionSpec);
+			}
 		}
 		catch (OptionException ex)
 		{
 			log.error("unable to parse arguments", ex);
+			SwingUtilities.invokeLater(() ->
+				new FatalErrorDialog("RuneLite was unable to parse the provided application arguments: " + ex.getMessage())
+					.open());
 			throw ex;
 		}
 
@@ -146,6 +172,7 @@ public class Launcher
 
 		final boolean nodiff = options.has("nodiff");
 		final boolean insecureSkipTlsVerification = options.has("insecure-skip-tls-verification");
+		final boolean postInstall = options.has("postinstall");
 
 		// Setup debug
 		final boolean isDebug = options.has("debug");
@@ -157,33 +184,99 @@ public class Launcher
 			logger.setLevel(Level.DEBUG);
 		}
 
-		// this has to be set prior to the graphics environment startup
-		if (options.has("scale"))
-		{
-			// On Vista+ this calls SetProcessDPIAware(). Since the RuneLite.exe manifest is DPI unaware
-			// Windows will scale the application if this isn't called. Thus the default scaling mode is
-			// Windows scaling due to being DPI unaware.
-			// https://docs.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
-			System.setProperty("sun.java2d.dpiaware", "true");
-			// This sets the Java 2D scaling factor, overriding the default behavior of detecting the scale via
-			// GetDpiForMonitor.
-			System.setProperty("sun.java2d.uiScale", (String) options.valueOf("scale"));
-		}
+		initDll();
+
+		// RTSS triggers off of the CreateWindow event, so this needs to be in place early, prior to splash screen
+		initDllBlacklist();
 
 		try
 		{
+			if (options.has("classpath"))
+			{
+				// being called from ForkLauncher. All JVM options are already set.
+				var classpathOpt = String.valueOf(options.valueOf("classpath"));
+				var classpath = Streams.stream(Splitter.on(File.pathSeparatorChar)
+					.split(classpathOpt))
+					.map(name -> new File(REPO_DIR, name))
+					.collect(Collectors.toList());
+				try
+				{
+					ReflectionLauncher.launch(classpath, getClientArgs(options));
+				}
+				catch (Exception e)
+				{
+					log.error("error launching client", e);
+				}
+				return;
+			}
+
+			final Map<String, String> jvmProps = new LinkedHashMap<>();
+			if (options.has("scale"))
+			{
+				// On Vista+ this calls SetProcessDPIAware(). Since the RuneLite.exe manifest is DPI unaware
+				// Windows will scale the application if this isn't called. Thus the default scaling mode is
+				// Windows scaling due to being DPI unaware.
+				// https://docs.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
+				jvmProps.put("sun.java2d.dpiaware", "true");
+				// This sets the Java 2D scaling factor, overriding the default behavior of detecting the scale via
+				// GetDpiForMonitor.
+				jvmProps.put("sun.java2d.uiScale", String.valueOf(options.valueOf("scale")));
+			}
+
+			jvmProps.putAll(hardwareAccelerationMode.toParams(OS.getOs()));
+
+			// As of JDK-8243269 (11.0.8) and JDK-8235363 (14), AWT makes macOS dark mode support opt-in so interfaces
+			// with hardcoded foreground/background colours don't get broken by system settings. Considering the native
+			// Aqua we draw consists a window border and an about box, it's safe to say we can opt in.
+			if (OS.getOs() == OS.OSType.MacOS)
+			{
+				jvmProps.put("apple.awt.application.appearance", "system");
+			}
+
+			// Stream launcher version
+			jvmProps.put(LauncherProperties.getVersionKey(), LauncherProperties.getVersion());
+
+			if (insecureSkipTlsVerification)
+			{
+				jvmProps.put("runelite.insecure-skip-tls-verification", "true");
+			}
+
+			log.info("RuneLite Launcher version {}", LauncherProperties.getVersion());
+			log.info("Setting hardware acceleration to {}", hardwareAccelerationMode);
+
+			// java2d properties have to be set prior to the graphics environment startup
+			setJvmParams(jvmProps);
+
+			if (insecureSkipTlsVerification)
+			{
+				TrustManagerUtil.setupInsecureTrustManager();
+			}
+			else
+			{
+				TrustManagerUtil.setupTrustManager();
+			}
+
+			if (postInstall)
+			{
+				postInstall();
+				return;
+			}
+
 			SplashScreen.init();
 			SplashScreen.stage(0, "Preparing", "Setting up environment");
-
-			log.info(Constants.SERVER_NAME + " Launcher version {}", LauncherProperties.getVersion());
 
 			// Print out system info
 			if (log.isDebugEnabled())
 			{
+				final RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+
 				log.debug("Command line arguments: {}", String.join(" ", args));
+				// This includes arguments from _JAVA_OPTIONS, which are parsed after command line flags and applied to
+				// the global VM args
+				log.debug("Java VM arguments: {}", String.join(" ", runtime.getInputArguments()));
 				log.debug("Java Environment:");
 				final Properties p = System.getProperties();
-				final Enumeration keys = p.keys();
+				final Enumeration<Object> keys = p.keys();
 
 				while (keys.hasMoreElements())
 				{
@@ -191,59 +284,6 @@ public class Launcher
 					final String value = (String) p.get(key);
 					log.debug("  {}: {}", key, value);
 				}
-			}
-
-			// Get hardware acceleration mode
-			final HardwareAccelerationMode hardwareAccelerationMode = options.valueOf(mode);
-			log.info("Setting hardware acceleration to {}", hardwareAccelerationMode);
-
-			// Enable hardware acceleration
-			final List<String> extraJvmParams = hardwareAccelerationMode.toParams(OS.getOs());
-
-			// Always use IPv4 over IPv6
-			extraJvmParams.add("-Djava.net.preferIPv4Stack=true");
-			extraJvmParams.add("-Djava.net.preferIPv4Addresses=true");
-
-			// Stream launcher version
-			extraJvmParams.add("-D" + LauncherProperties.getVersionKey() + "=" + LauncherProperties.getVersion());
-
-			if (insecureSkipTlsVerification)
-			{
-				extraJvmParams.add("-Drunelite.insecure-skip-tls-verification=true");
-			}
-
-			// Set all JVM params
-			setJvmParams(extraJvmParams);
-
-			// Set hs_err_pid location (do this after setJvmParams because it can't be set at runtime)
-			log.debug("Setting JVM crash log location to {}", CRASH_FILES);
-			extraJvmParams.add("-XX:ErrorFile=" + CRASH_FILES.getAbsolutePath());
-
-			if (insecureSkipTlsVerification)
-			{
-				TrustManager trustManager = new X509TrustManager()
-				{
-					@Override
-					public void checkClientTrusted(X509Certificate[] chain, String authType)
-					{
-					}
-
-					@Override
-					public void checkServerTrusted(X509Certificate[] chain, String authType)
-					{
-					}
-
-					@Override
-					public X509Certificate[] getAcceptedIssuers()
-					{
-						return null;
-					}
-				};
-
-				SSLContext sc = SSLContext.getInstance("SSL");
-				sc.init(null, new TrustManager[]{trustManager}, new SecureRandom());
-				HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-				HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 			}
 
 			SplashScreen.stage(.05, null, "Downloading bootstrap");
@@ -255,56 +295,38 @@ public class Launcher
 			catch (IOException | VerificationException | CertificateException | SignatureException | InvalidKeyException | NoSuchAlgorithmException ex)
 			{
 				log.error("error fetching bootstrap", ex);
+
+				String extract = CertPathExtractor.extract(ex);
+				if (extract != null)
+				{
+					log.error("untrusted certificate chain: {}", extract);
+				}
+
 				SwingUtilities.invokeLater(() -> FatalErrorDialog.showNetErrorWindow("downloading the bootstrap", ex));
 				return;
 			}
 
+			SplashScreen.stage(.07, null, "Checking for updates");
+
+			Updater.update(bootstrap, options, args);
+
 			SplashScreen.stage(.10, null, "Tidying the cache");
 
-			boolean launcherTooOld = bootstrap.getRequiredLauncherVersion() != null &&
-				compareVersion(bootstrap.getRequiredLauncherVersion(), LauncherProperties.getVersion()) > 0;
-
-			boolean jvmTooOld = false;
-			try
+			if (jvmOutdated(bootstrap))
 			{
-				if (bootstrap.getRequiredJVMVersion() != null)
-				{
-					jvmTooOld = Runtime.Version.parse(bootstrap.getRequiredJVMVersion())
-						.compareTo(Runtime.version()) > 0;
-				}
-			}
-			catch (IllegalArgumentException e)
-			{
-				log.warn("Unable to parse bootstrap version", e);
-			}
-
-			boolean nojvm = "true".equals(System.getProperty("runelite.launcher.nojvm"));
-
-			if (launcherTooOld || (nojvm && jvmTooOld))
-			{
-				SwingUtilities.invokeLater(() ->
-					new FatalErrorDialog("Your launcher is to old to start " + Constants.SERVER_NAME + ". Please download and install a more " +
-						"recent one from " + Constants.SERVER_WEBSITE_SHORT)
-						.addButton(Constants.SERVER_WEBSITE_SHORT, () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
-						.open());
-				return;
-			}
-			if (jvmTooOld)
-			{
-				SwingUtilities.invokeLater(() ->
-					new FatalErrorDialog("Your Java installation is too old. " + Constants.SERVER_NAME + " now requires Java " +
-						bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from " + Constants.SERVER_WEBSITE_SHORT + "," +
-						" or install a newer version of Java.")
-						.addButton(Constants.SERVER_WEBSITE_SHORT, () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
-						.open());
+				// jvmOutdated opens an error dialog
 				return;
 			}
 
-			// update packr vmargs. The only extra vmargs we need to write to disk are the ones which cannot be set
-			// at runtime, which currently is just the vm errorfile.
-			PackrConfig.updateLauncherArgs(bootstrap, Collections.singleton("-XX:ErrorFile=" + CRASH_FILES.getAbsolutePath()));
+			// update packr vmargs to the launcher vmargs from bootstrap.
+			PackrConfig.updateLauncherArgs(bootstrap);
 
-			REPO_DIR.mkdirs();
+			if (!REPO_DIR.exists() && !REPO_DIR.mkdirs())
+			{
+				log.error("unable to create repo directory {}", REPO_DIR);
+				SwingUtilities.invokeLater(() -> new FatalErrorDialog("Unable to create RuneLite directory " + REPO_DIR.getAbsolutePath() + ". Check your filesystem permissions are correct.").open());
+				return;
+			}
 
 			// Determine artifacts for this OS
 			List<Artifact> artifacts = Arrays.stream(bootstrap.getArtifacts())
@@ -363,48 +385,45 @@ public class Launcher
 			}
 
 			final Collection<String> clientArgs = getClientArgs(options);
-
-			if (isDebug)
-			{
-				clientArgs.add("--debug");
-			}
-
 			SplashScreen.stage(.90, "Starting the client", "");
 
-			List<File> classpath = artifacts.stream()
+			var classpath = artifacts.stream()
 				.map(dep -> new File(REPO_DIR, dep.getName()))
 				.collect(Collectors.toList());
 
-			// packr doesn't let us specify command line arguments
-			if (nojvm || options.has("nojvm"))
+			List<String> jvmParams = new ArrayList<>();
+			// Set hs_err_pid location. This is a jvm param and can't be set at runtime.
+			log.debug("Setting JVM crash log location to {}", CRASH_FILES);
+			jvmParams.add("-XX:ErrorFile=" + CRASH_FILES.getAbsolutePath());
+			// Add VM args from cli/env
+			jvmParams.addAll(getJvmArgs(options));
+
+			if (launchMode == LaunchMode.REFLECT)
 			{
-				try
-				{
-					ReflectionLauncher.launch(classpath, clientArgs);
-				}
-				catch (MalformedURLException ex)
-				{
-					log.error("unable to launch client", ex);
-				}
+				log.debug("Using launch mode: REFLECT");
+				ReflectionLauncher.launch(classpath, clientArgs);
+			}
+			else if (launchMode == LaunchMode.FORK || (launchMode == LaunchMode.AUTO && ForkLauncher.canForkLaunch()))
+			{
+				log.debug("Using launch mode: FORK");
+				ForkLauncher.launch(bootstrap, classpath, clientArgs, jvmProps, jvmParams);
 			}
 			else
 			{
-				try
-				{
-					JvmLauncher.launch(bootstrap, classpath, clientArgs, extraJvmParams);
-				}
-				catch (IOException ex)
-				{
-					log.error("unable to launch client", ex);
-				}
+				// launch mode JVM or AUTO outside of packr
+				log.debug("Using launch mode: JVM");
+				JvmLauncher.launch(bootstrap, classpath, clientArgs, jvmProps, jvmParams);
 			}
 		}
 		catch (Exception e)
 		{
 			log.error("Failure during startup", e);
-			SwingUtilities.invokeLater(() ->
-				new FatalErrorDialog(Constants.SERVER_NAME + " has encountered an unexpected error during startup.")
-					.open());
+			if (!postInstall)
+			{
+				SwingUtilities.invokeLater(() ->
+					new FatalErrorDialog("RuneLite has encountered an unexpected error during startup.")
+						.open());
+			}
 		}
 		catch (Error e)
 		{
@@ -418,45 +437,86 @@ public class Launcher
 		}
 	}
 
-	private static void setJvmParams(final Collection<String> params)
+	private static void setJvmParams(final Map<String, String> params)
 	{
-		for (String param : params)
+		for (Map.Entry<String, String> entry : params.entrySet())
 		{
-			final String[] split = param.replace("-D", "").split("=");
-			System.setProperty(split[0], split[1]);
+			System.setProperty(entry.getKey(), entry.getValue());
 		}
 	}
 
 	private static Bootstrap getBootstrap() throws IOException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, VerificationException
 	{
 		URL u = new URL(LauncherProperties.getBootstrap());
-		//URL signatureUrl = new URL(LauncherProperties.getBootstrapSig());
+		URL signatureUrl = new URL(LauncherProperties.getBootstrapSig());
 
 		URLConnection conn = u.openConnection();
-		//URLConnection signatureConn = signatureUrl.openConnection();
+		URLConnection signatureConn = signatureUrl.openConnection();
 
 		conn.setRequestProperty("User-Agent", USER_AGENT);
-		//signatureConn.setRequestProperty("User-Agent", USER_AGENT);
+		signatureConn.setRequestProperty("User-Agent", USER_AGENT);
 
 		try (InputStream i = conn.getInputStream();
-			//InputStream signatureIn = signatureConn.getInputStream()
-		) {
+			InputStream signatureIn = signatureConn.getInputStream())
+		{
 			byte[] bytes = ByteStreams.toByteArray(i);
-			//byte[] signature = ByteStreams.toByteArray(signatureIn);
+			byte[] signature = ByteStreams.toByteArray(signatureIn);
 
-			/*Certificate certificate = getCertificate();
+			Certificate certificate = getCertificate();
 			Signature s = Signature.getInstance("SHA256withRSA");
 			s.initVerify(certificate);
-			s.update(bytes);*/
+			s.update(bytes);
 
-			/*if (!s.verify(signature))
+			if (!s.verify(signature))
 			{
 				throw new VerificationException("Unable to verify bootstrap signature");
-			}*/
+			}
 
 			Gson g = new Gson();
 			return g.fromJson(new InputStreamReader(new ByteArrayInputStream(bytes)), Bootstrap.class);
 		}
+	}
+
+	private static boolean jvmOutdated(Bootstrap bootstrap)
+	{
+		boolean launcherTooOld = bootstrap.getRequiredLauncherVersion() != null &&
+			compareVersion(bootstrap.getRequiredLauncherVersion(), LauncherProperties.getVersion()) > 0;
+
+		boolean jvmTooOld = false;
+		try
+		{
+			if (bootstrap.getRequiredJVMVersion() != null)
+			{
+				jvmTooOld = Runtime.Version.parse(bootstrap.getRequiredJVMVersion())
+					.compareTo(Runtime.version()) > 0;
+			}
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.warn("Unable to parse bootstrap version", e);
+		}
+
+		if (launcherTooOld)
+		{
+			SwingUtilities.invokeLater(() ->
+				new FatalErrorDialog("Your launcher is too old to start RuneLite. Please download and install a more " +
+					"recent one from RuneLite.net.")
+					.addButton("RuneLite.net", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
+					.open());
+			return true;
+		}
+		if (jvmTooOld)
+		{
+			SwingUtilities.invokeLater(() ->
+				new FatalErrorDialog("Your Java installation is too old. RuneLite now requires Java " +
+					bootstrap.getRequiredJVMVersion() + " to run. You can get a platform specific version from RuneLite.net," +
+					" or install a newer version of Java.")
+					.addButton("RuneLite.net", () -> LinkBrowser.browse(LauncherProperties.getDownloadLink()))
+					.open());
+			return true;
+		}
+
+		return false;
 	}
 
 	private static Collection<String> getClientArgs(OptionSet options)
@@ -476,6 +536,30 @@ public class Launcher
 		if (!Strings.isNullOrEmpty(clientArgs))
 		{
 			args.addAll(Splitter.on(' ').omitEmptyStrings().trimResults().splitToList(clientArgs));
+		}
+
+		if (options.has("debug"))
+		{
+			args.add("--debug");
+		}
+
+		return args;
+	}
+
+	private static List<String> getJvmArgs(OptionSet options)
+	{
+		var args = options.valuesOf("J").stream()
+			.filter(String.class::isInstance)
+			.map(String.class::cast)
+			.collect(Collectors.toCollection(ArrayList::new));
+
+		var envArgs = System.getenv("RUNELITE_VMARGS");
+		if (!Strings.isNullOrEmpty(envArgs))
+		{
+			args.addAll(Splitter.on(' ')
+				.omitEmptyStrings()
+				.trimResults()
+				.splitToList(envArgs));
 		}
 
 		return args;
@@ -573,7 +657,7 @@ public class Launcher
 					File old = new File(REPO_DIR, diff.getFrom());
 					HashCode hash;
 					try (InputStream patchStream = new GZIPInputStream(new ByteArrayInputStream(out.toByteArray()));
-						HashingOutputStream fout = new HashingOutputStream(Hashing.sha256(), new FileOutputStream(dest)))
+						HashingOutputStream fout = new HashingOutputStream(Hashing.sha256(), Files.newOutputStream(dest.toPath())))
 					{
 						new FileByFileV1DeltaApplier().applyDelta(old, patchStream, fout);
 						hash = fout.hash();
@@ -600,7 +684,7 @@ public class Launcher
 
 			log.debug("Downloading {}", artifact.getName());
 
-			try (FileOutputStream fout = new FileOutputStream(dest))
+			try (OutputStream fout = Files.newOutputStream(dest.toPath()))
 			{
 				final int totalBytes = totalDownloadBytes;
 				download(artifact.getPath(), artifact.getHash(), (completed) ->
@@ -682,7 +766,7 @@ public class Launcher
 	private static String hash(File file) throws IOException
 	{
 		HashFunction sha256 = Hashing.sha256();
-		return Files.asByteSource(file).hash(sha256).toString();
+		return com.google.common.io.Files.asByteSource(file).hash(sha256).toString();
 	}
 
 	private static Certificate getCertificate() throws CertificateException
@@ -692,7 +776,6 @@ public class Launcher
 		return certificate;
 	}
 
-	@VisibleForTesting
 	static int compareVersion(String a, String b)
 	{
 		Pattern tok = Pattern.compile("[^0-9a-zA-Z]");
@@ -743,7 +826,7 @@ public class Launcher
 		});
 	}
 
-	private static void download(String path, String hash, IntConsumer progress, OutputStream out) throws IOException, VerificationException
+	static void download(String path, String hash, IntConsumer progress, OutputStream out) throws IOException, VerificationException
 	{
 		URL url = new URL(path);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -783,4 +866,72 @@ public class Launcher
 		// 16 has the same module restrictions as 17, so we'll use the 17 settings for it
 		return Runtime.version().feature() >= 16;
 	}
+
+	private static void postInstall()
+	{
+		Bootstrap bootstrap;
+		try
+		{
+			bootstrap = getBootstrap();
+		}
+		catch (IOException | VerificationException | CertificateException | SignatureException | InvalidKeyException | NoSuchAlgorithmException ex)
+		{
+			log.error("error fetching bootstrap", ex);
+			return;
+		}
+
+		PackrConfig.updateLauncherArgs(bootstrap);
+
+		log.info("Performed postinstall steps");
+	}
+
+	private static void initDll()
+	{
+		if (OS.getOs() != OS.OSType.Windows)
+		{
+			return;
+		}
+
+		String arch = System.getProperty("os.arch");
+		if (!"x86".equals(arch) && !"amd64".equals(arch))
+		{
+			log.debug("System architecture is not supported for launcher natives: {}", arch);
+			return;
+		}
+
+		try
+		{
+			System.loadLibrary("launcher_" + arch);
+			log.debug("Loaded launcher native launcher_{}", arch);
+		}
+		catch (Error ex)
+		{
+			log.debug("Error loading launcher native", ex);
+		}
+	}
+
+	private static void initDllBlacklist()
+	{
+		String blacklistedDlls = System.getProperty("runelite.launcher.blacklistedDlls");
+		if (blacklistedDlls == null || blacklistedDlls.isEmpty())
+		{
+			return;
+		}
+
+		String[] dlls = blacklistedDlls.split(",");
+
+		try
+		{
+			log.debug("Setting blacklisted dlls: {}", blacklistedDlls);
+			setBlacklistedDlls(dlls);
+		}
+		catch (UnsatisfiedLinkError ex)
+		{
+			log.debug("Error setting dll blacklist", ex);
+		}
+	}
+
+	private static native void setBlacklistedDlls(String[] dlls);
+
+	static native String regQueryString(String subKey, String value);
 }

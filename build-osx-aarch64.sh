@@ -2,39 +2,36 @@
 
 set -e
 
-JDK_VER="17"
-JDK_BUILD="35"
-PACKR_VERSION="runelite-1.2"
+JDK_VER="17.0.4.1"
+JDK_BUILD="1"
+JDK_HASH="63a32fe611f2666856e84b79305eb80609de229bbce4f13991b961797aa88bf8"
+PACKR_VERSION="runelite-1.7"
+PACKR_HASH="f61c7faeaa364b6fa91eb606ce10bd0e80f9adbce630d2bae719aef78d45da61"
 
 SIGNING_IDENTITY="Developer ID Application"
 
-FILE="OpenJDK17-jdk_aarch64_mac_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz"
+FILE="OpenJDK17U-jre_aarch64_mac_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz"
 URL="https://github.com/adoptium/temurin17-binaries/releases/download/jdk-${JDK_VER}%2B${JDK_BUILD}/${FILE}"
 
 if ! [ -f ${FILE} ] ; then
     curl -Lo ${FILE} ${URL}
 fi
 
-echo "910bb88543211c63298e5b49f7144ac4463f1d903926e94a89bfbf10163bbba1  ${FILE}" | shasum -c
+echo "${JDK_HASH}  ${FILE}" | shasum -c
 
 # packr requires a "jdk" and pulls the jre from it - so we have to place it inside
 # the jdk folder at jre/
 if ! [ -d osx-aarch64-jdk ] ; then
-    # Extract jdk archive
-    tar zxf $FILE
+    tar zxf ${FILE}
+    mkdir osx-aarch64-jdk
+    mv jdk-${JDK_VER}+${JDK_BUILD}-jre osx-aarch64-jdk/jre
 
-    # Create jre
-    jdk-${JDK_VER}+${JDK_BUILD}/Contents/Home/bin/jlink \
-        --add-modules java.base,java.datatransfer,java.desktop,java.logging,java.management \
-        --add-modules java.naming,java.net.http,java.sql,java.xml\
-        --add-modules jdk.crypto.ec,jdk.httpserver,jdk.unsupported\
-        --add-modules jdk.random,jdk.net,jdk.crypto.cryptoki,jdk.accessibility\
-        --add-modules jdk.charsets,java.prefs,jdk.unsupported.desktop\
-        --no-header-files --no-man-pages\
-        --output osx-aarch64-jdk/jre
-
-    # Cleanup
-    rm -rf jdk-${JDK_VER}+${JDK_BUILD}
+    pushd osx-aarch64-jdk/jre
+    # Move JRE out of Contents/Home/
+    mv Contents/Home/* .
+    # Remove unused leftover folders
+    rm -rf Contents
+    popd
 fi
 
 if ! [ -f packr_${PACKR_VERSION}.jar ] ; then
@@ -42,10 +39,10 @@ if ! [ -f packr_${PACKR_VERSION}.jar ] ; then
         https://github.com/runelite/packr/releases/download/${PACKR_VERSION}/packr.jar
 fi
 
-echo "6552d1e9c86250d84d6f485575d5a20246431984  packr_${PACKR_VERSION}.jar" | shasum -c
+echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | shasum -c
 
 java -jar packr_${PACKR_VERSION}.jar \
-	macos-aarch64-config.json
+	packr/macos-aarch64-config.json
 
 cp target/filtered-resources/Info.plist native-osx-aarch64/Zenyte.app/Contents
 

@@ -2,19 +2,21 @@
 
 set -e
 
-JDK_VER="11.0.8"
-JDK_BUILD="10"
-PACKR_VERSION="runelite-1.0"
-APPIMAGE_VERSION="12"
+JDK_VER="11.0.16.1"
+JDK_BUILD="1"
+JDK_HASH="1ffe1a682e8179e35238bf3f93aba0cb185850e202c676f41d38cb0561883eda"
+PACKR_VERSION="runelite-1.7"
+PACKR_HASH="f61c7faeaa364b6fa91eb606ce10bd0e80f9adbce630d2bae719aef78d45da61"
+APPIMAGE_VERSION="13"
 
 umask 022
 
 if ! [ -f OpenJDK11U-jre_x64_linux_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz ] ; then
     curl -Lo OpenJDK11U-jre_x64_linux_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz \
-        https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-${JDK_VER}%2B${JDK_BUILD}/OpenJDK11U-jre_x64_linux_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz
+        https://github.com/adoptium/temurin11-binaries/releases/download/jdk-${JDK_VER}%2B${JDK_BUILD}/OpenJDK11U-jre_x64_linux_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz
 fi
 
-echo "98615b1b369509965a612232622d39b5cefe117d6189179cbad4dcef2ee2f4e1 OpenJDK11U-jre_x64_linux_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz" | sha256sum -c
+echo "${JDK_HASH} OpenJDK11U-jre_x64_linux_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz" | sha256sum -c
 
 # packr requires a "jdk" and pulls the jre from it - so we have to place it inside
 # the jdk folder at jre/
@@ -29,45 +31,25 @@ if ! [ -f packr_${PACKR_VERSION}.jar ] ; then
         https://github.com/runelite/packr/releases/download/${PACKR_VERSION}/packr.jar
 fi
 
-echo "18b7cbaab4c3f9ea556f621ca42fbd0dc745a4d11e2a08f496e2c3196580cd53  packr_${PACKR_VERSION}.jar" | sha256sum -c
+echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
 
 # Note: Host umask may have checked out this directory with g/o permissions blank
 chmod -R u=rwX,go=rX appimage
 # ...ditto for the build process
-chmod 644 target/Zenyte.jar
+chmod 644 target/RuneLite.jar
 
 java -jar packr_${PACKR_VERSION}.jar \
-    --platform \
-    linux64 \
-    --jdk \
-    linux-jdk \
-    --executable \
-    Zenyte \
-    --classpath \
-    target/Zenyte.jar \
-    --mainclass \
-    net.runelite.launcher.Launcher \
-    --vmargs \
-    Drunelite.launcher.nojvm=true \
-    Xmx512m \
-    Xss2m \
-    XX:CompileThreshold=1500 \
-    Djna.nosys=true \
-    --output \
-    native-linux-x86_64/Zenyte.AppDir/ \
-    --resources \
-    target/filtered-resources/runelite.desktop \
-    appimage/runelite.png
+    packr/linux-x64-config.json
 
-pushd native-linux-x86_64/Zenyte.AppDir
+pushd native-linux-x86_64/RuneLite.AppDir
 mkdir -p jre/lib/amd64/server/
 ln -s ../../server/libjvm.so jre/lib/amd64/server/ # packr looks for libjvm at this hardcoded path
 
-# Symlink AppRun -> Zenyte
-ln -s Zenyte AppRun
+# Symlink AppRun -> RuneLite
+ln -s RuneLite AppRun
 
-# Ensure Zenyte is executable to all users
-chmod 755 Zenyte
+# Ensure RuneLite is executable to all users
+chmod 755 RuneLite
 popd
 
 if ! [ -f appimagetool-x86_64.AppImage ] ; then
@@ -76,8 +58,8 @@ if ! [ -f appimagetool-x86_64.AppImage ] ; then
     chmod +x appimagetool-x86_64.AppImage
 fi
 
-echo "d918b4df547b388ef253f3c9e7f6529ca81a885395c31f619d9aaf7030499a13  appimagetool-x86_64.AppImage" | sha256sum -c
+echo "df3baf5ca5facbecfc2f3fa6713c29ab9cefa8fd8c1eac5d283b79cab33e4acb  appimagetool-x86_64.AppImage" | sha256sum -c
 
 ./appimagetool-x86_64.AppImage \
-	native-linux-x86_64/Zenyte.AppDir/ \
-	native-linux-x86_64/Zenyte.AppImage
+	native-linux-x86_64/RuneLite.AppDir/ \
+	native-linux-x86_64/RuneLite.AppImage
