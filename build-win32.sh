@@ -42,4 +42,4 @@ echo Zenyte.exe 32bit sha256sum
 sha256sum native-win32/Zenyte.exe
 
 # We use the filtered iss file
-iscc target/filtered-resources/runelite32.iss
+"C:\Program Files (x86)\Inno Setup 6\iscc.exe" target/filtered-resources/runelite32.iss
