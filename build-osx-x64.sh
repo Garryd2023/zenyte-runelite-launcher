@@ -63,6 +63,6 @@ if ! hdiutil imageinfo native-osx/Zenyte-x64.dmg | grep -q "Format: UDBZ" ; then
 fi
 
 # Notarize app
-if xcrun notarytool submit native-osx/Zenyte-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx/Zenyte-x64.dmg
-fi
+#if xcrun notarytool submit native-osx/Zenyte-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+#    xcrun stapler staple native-osx/Zenyte-x64.dmg
+#fi

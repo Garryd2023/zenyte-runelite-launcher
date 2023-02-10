@@ -59,6 +59,6 @@ create-dmg native-osx-aarch64/Zenyte.app native-osx-aarch64/ || true
 mv native-osx-aarch64/Zenyte\ *.dmg native-osx-aarch64/Zenyte-aarch64.dmg
 
 # Notarize app
-if xcrun notarytool submit native-osx-aarch64/Zenyte-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx-aarch64/Zenyte-aarch64.dmg
-fi
+#if xcrun notarytool submit native-osx-aarch64/Zenyte-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+#    xcrun stapler staple native-osx-aarch64/Zenyte-aarch64.dmg
+#fi
