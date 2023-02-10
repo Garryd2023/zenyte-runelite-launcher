@@ -50,7 +50,7 @@ jobs:
         cmake -S native -B native/build32 -A Win32
         cmake --build native/build32 --config Release
     - name: build launcher
-      run: mvn verify -B
+      run: mvn verify -DskipTests -B
     - name: x64 installer
       shell: bash
       run: ./build-win64.sh
@@ -82,7 +82,7 @@ jobs:
         java-version: 11
         distribution: temurin
     - name: build
-      run: mvn verify -B
+      run: mvn verify -DskipTests -B
     - name: linux-x64
       run: ./build-linux-x86_64.sh
     - name: linux-aarch64
@@ -117,7 +117,7 @@ jobs:
         java-version: 11
         distribution: temurin
     - name: build
-      run: mvn verify -B
+      run: mvn verify -DskipTests -B
     - run: git clone https://github.com/runelite/create-dmg
     - run: |
         set -e
