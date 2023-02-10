@@ -8,7 +8,7 @@ JDK_HASH="10be61a8dd3766f7c12e2e823a6eca48cc6361d97e1b76310c752bd39770c7fe"
 PACKR_VERSION="runelite-1.7"
 PACKR_HASH="f61c7faeaa364b6fa91eb606ce10bd0e80f9adbce630d2bae719aef78d45da61"
 
-SIGNING_IDENTITY="Developer ID Application"
+SIGNING_IDENTITY="57C53083591B45208C8F17F80C62EF2E1F5E794B"
 
 if ! [ -f OpenJDK11U-jre_x64_mac_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz ] ; then
     curl -Lo OpenJDK11U-jre_x64_mac_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz \
