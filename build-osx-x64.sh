@@ -8,7 +8,7 @@ JDK_HASH="10be61a8dd3766f7c12e2e823a6eca48cc6361d97e1b76310c752bd39770c7fe"
 PACKR_VERSION="runelite-1.7"
 PACKR_HASH="f61c7faeaa364b6fa91eb606ce10bd0e80f9adbce630d2bae719aef78d45da61"
 
-#SIGNING_IDENTITY="Developer ID Application"
+SIGNING_IDENTITY="F60F427F725F23E7224489A912A0D1661A129C48"
 
 if ! [ -f OpenJDK11U-jre_x64_mac_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz ] ; then
     curl -Lo OpenJDK11U-jre_x64_mac_hotspot_${JDK_VER}_${JDK_BUILD}.tar.gz \
@@ -63,6 +63,6 @@ mv native-osx/Zenyte\ *.dmg native-osx/Zenyte-x64.dmg
 #fi
 
 # Notarize app
-#if xcrun notarytool submit native-osx/Zenyte-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-#    xcrun stapler staple native-osx/Zenyte-x64.dmg
-#fi
+if xcrun notarytool submit native-osx/Zenyte-x64.dmg --wait --keychain-profile "07c13e1cb5" ; then
+    xcrun stapler staple native-osx/Zenyte-x64.dmg
+fi
