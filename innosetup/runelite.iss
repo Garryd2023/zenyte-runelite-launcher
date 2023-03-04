@@ -33,7 +33,9 @@ Source: "${basedir}\native-win64\jre\*"; DestDir: "{app}\jre"; Flags: recursesub
 
 [Icons]
 ; start menu
-Name: "{userprograms}\Zenyte"; Filename: "{app}\Zenyte.exe"
+Name: "{userprograms}\Zenyte\Zenyte"; Filename: "{app}\Zenyte.exe"
+Name: "{userprograms}\Zenyte\Zenyte (configure)"; Filename: "{app}\Zenyte.exe"; Parameters: "--configure"
+Name: "{userprograms}\Zenyte\Zenyte (safe mode)"; Filename: "{app}\Zenyte.exe"; Parameters: "--safe-mode"
 Name: "{userdesktop}\Zenyte"; Filename: "{app}\Zenyte.exe"; Tasks: DesktopIcon
 
 [Run]
@@ -43,6 +45,8 @@ Filename: "{app}\Zenyte.exe"; Description: "&Open Zenyte"; Flags: postinstall sk
 [InstallDelete]
 ; Delete the old jvm so it doesn't try to load old stuff with the new vm and crash
 Type: filesandordirs; Name: "{app}\jre"
+; previous shortcut
+Type: files; Name: "{userprograms}\Zenyte.lnk"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{%USERPROFILE}\.runelite\repository2"
