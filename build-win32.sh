@@ -38,7 +38,7 @@ tools/rcedit-x64 native-win32/Zenyte.exe \
 echo Zenyte.exe 32bit sha256sum
 sha256sum native-win32/Zenyte.exe
 
-dumpbin //HEADERS native-win32/RuneLite.exe
+dumpbin //HEADERS native-win32/Zenyte.exe
 
 # We use the filtered iss file
 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" target/filtered-resources/runelite32.iss
