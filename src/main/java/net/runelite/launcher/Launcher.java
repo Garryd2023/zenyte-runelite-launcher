@@ -104,7 +104,7 @@ public class Launcher
 		parser.accepts("insecure-skip-tls-verification", "Disable TLS certificate and hostname verification");
 		parser.accepts("scale", "Custom scale factor for Java 2D").withRequiredArg();
 		parser.accepts("noupdate", "Skips the launcher self-update");
-		parser.accepts("help", "Show this text (use --clientargs --help for client help)").forHelp();
+		parser.accepts("help", "Show this text (use -- --help for client help)").forHelp();
 		parser.accepts("classpath", "Classpath for the client").withRequiredArg();
 		parser.accepts("J", "JVM argument (FORK or JVM launch mode only)").withRequiredArg();
 		parser.accepts("configure", "Opens configuration GUI");
@@ -880,7 +880,7 @@ public class Launcher
 		}
 
 		String arch = System.getProperty("os.arch");
-		if (!"x86".equals(arch) && !"amd64".equals(arch))
+		if (!Set.of("x86", "amd64", "aarch64").contains(arch))
 		{
 			log.debug("System architecture is not supported for launcher natives: {}", arch);
 			return;

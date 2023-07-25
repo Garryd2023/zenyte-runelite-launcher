@@ -82,23 +82,27 @@ class ForkLauncher
 		var commands = new ArrayList<>();
 		commands.add(path.toAbsolutePath().toString());
 		commands.add("-c");
-		// launcher vm args
-		for (var arg : jvmArgs)
-		{
-			commands.add("-J");
-			commands.add(arg);
-		}
 		// bootstrap vm args
-		for (var arg : JvmLauncher.getJvmArguments(bootstrap))
+		var clientJvmArgs = JvmLauncher.getJvmArguments(bootstrap);
+		if (clientJvmArgs != null)
 		{
-			commands.add("-J");
-			commands.add(arg);
+			for (var arg : clientJvmArgs)
+			{
+				commands.add("-J");
+				commands.add(arg);
+			}
 		}
 		// launcher vm props
 		for (var prop : jvmProps.entrySet())
 		{
 			commands.add("-J");
 			commands.add("-D" + prop.getKey() + "=" + prop.getValue());
+		}
+		// launcher vm args
+		for (var arg : jvmArgs)
+		{
+			commands.add("-J");
+			commands.add(arg);
 		}
 
 		// program arguments
