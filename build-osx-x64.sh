@@ -40,27 +40,27 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | shasum -c
 java -jar packr_${PACKR_VERSION}.jar \
     packr/macos-x64-config.json
 
-cp target/filtered-resources/Info.plist native-osx/The CErver.app/Contents
+cp target/filtered-resources/Info.plist native-osx/TheCErver.app/Contents
 
-echo Setting world execute permissions on The CErver
-pushd native-osx/The CErver.app
-chmod g+x,o+x Contents/MacOS/The CErver
+echo Setting world execute permissions on TheCErver
+pushd native-osx/TheCErver.app
+chmod g+x,o+x Contents/MacOS/TheCErver
 popd
 
-codesign -f --entitlements osx/signing.entitlements --options runtime native-osx/The CErver.app || true
+codesign -f --entitlements osx/signing.entitlements --options runtime native-osx/TheCErver.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
 # note we use Adam-/create-dmg as upstream does not support UDBZ
-create-dmg native-osx/The CErver.app native-osx/ || true
+create-dmg native-osx/TheCErver.app native-osx/ || true
 
-mv native-osx/The CErver\ *.dmg native-osx/The CErver-x64.dmg
+mv native-osx/TheCErver\ *.dmg native-osx/TheCErver-x64.dmg
 
-#if ! hdiutil imageinfo native-osx/The CErver-x64.dmg | grep -q "Format: UDBZ" ; then
+#if ! hdiutil imageinfo native-osx/TheCErver-x64.dmg | grep -q "Format: UDBZ" ; then
 #    echo "Format of resulting dmg was not UDBZ, make sure your create-dmg has support for --format"
 #    exit 1
 #fi
 
 # Notarize app
-if xcrun notarytool submit native-osx/The CErver-x64.dmg --wait --keychain-profile "07c13e1cb5" ; then
-    xcrun stapler staple native-osx/The CErver-x64.dmg
+if xcrun notarytool submit native-osx/TheCErver-x64.dmg --wait --keychain-profile "07c13e1cb5" ; then
+    xcrun stapler staple native-osx/TheCErver-x64.dmg
 fi

@@ -40,21 +40,21 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | shasum -c
 java -jar packr_${PACKR_VERSION}.jar \
 	packr/macos-aarch64-config.json
 
-cp target/filtered-resources/Info.plist native-osx-aarch64/The CErver.app/Contents
+cp target/filtered-resources/Info.plist native-osx-aarch64/TheCErver.app/Contents
 
-echo Setting world execute permissions on The CErver
-pushd native-osx-aarch64/The CErver.app
-chmod g+x,o+x Contents/MacOS/The CErver
+echo Setting world execute permissions on TheCErver
+pushd native-osx-aarch64/TheCErver.app
+chmod g+x,o+x Contents/MacOS/TheCErver
 popd
 
-codesign -f --entitlements osx/signing.entitlements --options runtime native-osx-aarch64/The CErver.app || true
+codesign -f --entitlements osx/signing.entitlements --options runtime native-osx-aarch64/TheCErver.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
-create-dmg native-osx-aarch64/The CErver.app native-osx-aarch64/ || true
+create-dmg native-osx-aarch64/TheCErver.app native-osx-aarch64/ || true
 
-mv native-osx-aarch64/The CErver\ *.dmg native-osx-aarch64/The CErver-aarch64.dmg
+mv native-osx-aarch64/TheCErver\ *.dmg native-osx-aarch64/TheCErver-aarch64.dmg
 
 # Notarize app
-if xcrun notarytool submit native-osx-aarch64/The CErver-aarch64.dmg --wait --keychain-profile "07c13e1cb5" ; then
-    xcrun stapler staple native-osx-aarch64/The CErver-aarch64.dmg
+if xcrun notarytool submit native-osx-aarch64/TheCErver-aarch64.dmg --wait --keychain-profile "07c13e1cb5" ; then
+    xcrun stapler staple native-osx-aarch64/TheCErver-aarch64.dmg
 fi

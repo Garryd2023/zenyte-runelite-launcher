@@ -34,22 +34,22 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
 # Note: Host umask may have checked out this directory with g/o permissions blank
 chmod -R u=rwX,go=rX appimage
 # ...ditto for the build process
-chmod 644 target/The CErver.jar
+chmod 644 target/TheCErver.jar
 
 rm -rf native-linux-aarch64
 
 java -jar packr_${PACKR_VERSION}.jar \
     packr/linux-aarch64-config.json
 
-pushd native-linux-aarch64/The CErver.AppDir
+pushd native-linux-aarch64/TheCErver.AppDir
 mkdir -p jre/lib/amd64/server/
 ln -s ../../server/libjvm.so jre/lib/amd64/server/ # packr looks for libjvm at this hardcoded path
 
 # Symlink AppRun -> RuneLite
-ln -s The CErver AppRun
+ln -s TheCErver AppRun
 
 # Ensure RuneLite is executable to all users
-chmod 755 The CErver
+chmod 755 TheCErver
 popd
 
 if ! [ -f appimagetool-x86_64.AppImage ] ; then
@@ -69,5 +69,5 @@ echo "d2624ce8cc2c64ef76ba986166ad67f07110cdbf85112ace4f91611bc634c96a  runtime-
 
 ARCH=arm_aarch64 ./appimagetool-x86_64.AppImage \
 	--runtime-file runtime-aarch64  \
-	native-linux-aarch64/The CErver.AppDir/ \
-	native-linux-aarch64/The CErver-aarch64.AppImage
+	native-linux-aarch64/TheCErver.AppDir/ \
+	native-linux-aarch64/TheCErver-aarch64.AppImage

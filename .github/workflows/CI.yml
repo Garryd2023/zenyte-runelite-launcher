@@ -77,9 +77,9 @@ jobs:
       with:
         name: windows
         path: |
-          The CErverSetup.exe
-          The CErverSetup32.exe
-          The CErverSetupAArch64.exe
+          TheCErverSetup.exe
+          TheCErverSetup32.exe
+          TheCErverSetupAArch64.exe
         if-no-files-found: error
   linux:
     runs-on: ubuntu-20.04
@@ -107,14 +107,14 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: jar
-        path: target/The CErver.jar
+        path: target/TheCErver.jar
         if-no-files-found: error
     - uses: actions/upload-artifact@v3
       with:
         name: linux
         path: |
-          native-linux-x86_64/The CErver.AppImage
-          native-linux-aarch64/The CErver-aarch64.AppImage
+          native-linux-x86_64/TheCErver.AppImage
+          native-linux-aarch64/TheCErver-aarch64.AppImage
         if-no-files-found: error
   macos:
     runs-on: macos-11
@@ -151,6 +151,6 @@ jobs:
       with:
         name: macos
         path: |
-          native-osx/The CErver-x64.dmg
-          native-osx-aarch64/The CErver-aarch64.dmg
+          native-osx/TheCErver-x64.dmg
+          native-osx-aarch64/TheCErver-aarch64.dmg
         if-no-files-found: error

@@ -1,9 +1,9 @@
 {
   "platform": "windows64",
   "jdk": "win64-jdk",
-  "executable": "The CErver",
+  "executable": "TheCErver",
   "classpath": [
-    "target/The CErver.jar"
+    "target/TheCErver.jar"
   ],
   "mainclass": "net.runelite.launcher.Launcher",
   "vmargs": [

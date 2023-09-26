@@ -30,8 +30,8 @@
 	<groupId>net.runelite</groupId>
 	<artifactId>launcher</artifactId>
 	<version>2.6.8-SNAPSHOT</version>
-	<name>The CErver Launcher</name>
-	<description>Launcher for The CErver client</description>
+	<name>TheCErver Launcher</name>
+	<description>Launcher for TheCErver client</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -152,7 +152,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>The CErver</finalName>
+		<finalName>TheCErver</finalName>
 
 		<resources>
 			<resource>
