@@ -14,7 +14,7 @@ begin
 
     rlUpgrade := GetEnv('RUNELITE_UPGRADE');
     if rlUpgrade <> '' then begin
-      exePath := ExpandConstant('{app}\Zenyte.exe');
+      exePath := ExpandConstant('{app}\The CErver.exe');
       Exec(exePath, GetEnv('RUNELITE_UPGRADE_PARAMS'), '', SW_SHOW, ewNoWait, ResultCode);
     end;
   end;

@@ -2,9 +2,9 @@
     "platform": "mac64",
     "icon": "packr/runelite.icns",
     "jdk": "osx-jdk",
-    "executable": "Zenyte",
+    "executable": "The CErver",
     "classpath": [
-        "target/Zenyte.jar"
+        "target/The CErver.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -12,5 +12,5 @@
        "-Xss2m",
        "-XX:CompileThreshold=1500"
     ],
-    "output": "native-osx/Zenyte.app"
+    "output": "native-osx/The CErver.app"
 }

@@ -1,10 +1,10 @@
 [Setup]
-AppName=Zenyte Launcher
-AppPublisher=Zenyte
-UninstallDisplayName=Zenyte
+AppName=The CErver Launcher
+AppPublisher=The CErver
+UninstallDisplayName=The CErver
 AppVersion=${project.version}
-AppSupportURL=https://zenyte.com
-DefaultDirName={localappdata}\Zenyte
+AppSupportURL=https://thecerver.com
+DefaultDirName={localappdata}\The CErver
 
 ; ~30 mb for the repo the launcher downloads
 ExtraDiskSpaceRequired=30000000
@@ -13,40 +13,40 @@ PrivilegesRequired=lowest
 
 WizardSmallImageFile=${basedir}/innosetup/runelite_small.bmp
 SetupIconFile=${basedir}/runelite.ico
-UninstallDisplayIcon={app}\Zenyte.exe
+UninstallDisplayIcon={app}\The CErver.exe
 
 Compression=lzma2
 SolidCompression=yes
 
 OutputDir=${basedir}
-OutputBaseFilename=ZenyteSetup
+OutputBaseFilename=The CErverSetup
 
 [Tasks]
 Name: DesktopIcon; Description: "Create a &desktop icon";
 
 [Files]
-Source: "${basedir}\native-win64\Zenyte.exe"; DestDir: "{app}"
-Source: "${basedir}\native-win64\Zenyte.jar"; DestDir: "{app}"
+Source: "${basedir}\native-win64\The CErver.exe"; DestDir: "{app}"
+Source: "${basedir}\native-win64\The CErver.jar"; DestDir: "{app}"
 Source: "${basedir}\native\build64\Release\launcher_amd64.dll"; DestDir: "{app}"
 Source: "${basedir}\native-win64\config.json"; DestDir: "{app}"
 Source: "${basedir}\native-win64\jre\*"; DestDir: "{app}\jre"; Flags: recursesubdirs
 
 [Icons]
 ; start menu
-Name: "{userprograms}\Zenyte\Zenyte"; Filename: "{app}\Zenyte.exe"
-Name: "{userprograms}\Zenyte\Zenyte (configure)"; Filename: "{app}\Zenyte.exe"; Parameters: "--configure"
-Name: "{userprograms}\Zenyte\Zenyte (safe mode)"; Filename: "{app}\Zenyte.exe"; Parameters: "--safe-mode"
-Name: "{userdesktop}\Zenyte"; Filename: "{app}\Zenyte.exe"; Tasks: DesktopIcon
+Name: "{userprograms}\The CErver\The CErver"; Filename: "{app}\The CErver.exe"
+Name: "{userprograms}\The CErver\The CErver (configure)"; Filename: "{app}\The CErver.exe"; Parameters: "--configure"
+Name: "{userprograms}\The CErver\The CErver (safe mode)"; Filename: "{app}\The CErver.exe"; Parameters: "--safe-mode"
+Name: "{userdesktop}\The CErver"; Filename: "{app}\The CErver.exe"; Tasks: DesktopIcon
 
 [Run]
-Filename: "{app}\Zenyte.exe"; Parameters: "--postinstall"; Flags: nowait
-Filename: "{app}\Zenyte.exe"; Description: "&Open Zenyte"; Flags: postinstall skipifsilent nowait
+Filename: "{app}\The CErver.exe"; Parameters: "--postinstall"; Flags: nowait
+Filename: "{app}\The CErver.exe"; Description: "&Open The CErver"; Flags: postinstall skipifsilent nowait
 
 [InstallDelete]
 ; Delete the old jvm so it doesn't try to load old stuff with the new vm and crash
 Type: filesandordirs; Name: "{app}\jre"
 ; previous shortcut
-Type: files; Name: "{userprograms}\Zenyte.lnk"
+Type: files; Name: "{userprograms}\The CErver.lnk"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{%USERPROFILE}\.runelite\repository2"

@@ -1,9 +1,9 @@
 {
   "platform": "windows64",
   "jdk": "win64-jdk",
-  "executable": "Zenyte",
+  "executable": "The CErver",
   "classpath": [
-    "target/Zenyte.jar"
+    "target/The CErver.jar"
   ],
   "mainclass": "net.runelite.launcher.Launcher",
   "vmargs": [

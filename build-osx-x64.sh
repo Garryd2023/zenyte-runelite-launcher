@@ -40,27 +40,27 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | shasum -c
 java -jar packr_${PACKR_VERSION}.jar \
     packr/macos-x64-config.json
 
-cp target/filtered-resources/Info.plist native-osx/Zenyte.app/Contents
+cp target/filtered-resources/Info.plist native-osx/The CErver.app/Contents
 
-echo Setting world execute permissions on Zenyte
-pushd native-osx/Zenyte.app
-chmod g+x,o+x Contents/MacOS/Zenyte
+echo Setting world execute permissions on The CErver
+pushd native-osx/The CErver.app
+chmod g+x,o+x Contents/MacOS/The CErver
 popd
 
-codesign -f --entitlements osx/signing.entitlements --options runtime native-osx/Zenyte.app || true
+codesign -f --entitlements osx/signing.entitlements --options runtime native-osx/The CErver.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
 # note we use Adam-/create-dmg as upstream does not support UDBZ
-create-dmg native-osx/Zenyte.app native-osx/ || true
+create-dmg native-osx/The CErver.app native-osx/ || true
 
-mv native-osx/Zenyte\ *.dmg native-osx/Zenyte-x64.dmg
+mv native-osx/The CErver\ *.dmg native-osx/The CErver-x64.dmg
 
-#if ! hdiutil imageinfo native-osx/Zenyte-x64.dmg | grep -q "Format: UDBZ" ; then
+#if ! hdiutil imageinfo native-osx/The CErver-x64.dmg | grep -q "Format: UDBZ" ; then
 #    echo "Format of resulting dmg was not UDBZ, make sure your create-dmg has support for --format"
 #    exit 1
 #fi
 
 # Notarize app
-if xcrun notarytool submit native-osx/Zenyte-x64.dmg --wait --keychain-profile "07c13e1cb5" ; then
-    xcrun stapler staple native-osx/Zenyte-x64.dmg
+if xcrun notarytool submit native-osx/The CErver-x64.dmg --wait --keychain-profile "07c13e1cb5" ; then
+    xcrun stapler staple native-osx/The CErver-x64.dmg
 fi
