@@ -12,7 +12,7 @@ ArchitecturesAllowed=x86 x64
 PrivilegesRequired=lowest
 
 WizardSmallImageFile=${basedir}/innosetup/runelite_small.bmp
-SetupIconFile=${basedir}/favicon.ico
+SetupIconFile=${basedir}\favicon.ico
 UninstallDisplayIcon={app}\TheCErver.exe
 
 Compression=lzma2
