@@ -33,7 +33,7 @@ java -jar packr_${PACKR_VERSION}.jar \
 
 tools/rcedit-x64 native-win64/TheCErver.exe \
   --application-manifest packr/runelite.manifest \
-  --set-icon runelite.ico
+  --set-icon favicon.ico
 
 echo TheCErver.exe 64bit sha256sum
 sha256sum native-win64/TheCErver.exe
