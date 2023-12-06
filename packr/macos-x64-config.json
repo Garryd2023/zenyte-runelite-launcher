@@ -2,9 +2,9 @@
     "platform": "mac64",
     "icon": "packr/runelite.icns",
     "jdk": "osx-jdk",
-    "executable": "TheCErver",
+    "executable": "TheNightmatez",
     "classpath": [
-        "target/TheCErver.jar"
+        "target/TheNightmatez.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -12,5 +12,5 @@
        "-Xss2m",
        "-XX:CompileThreshold=1500"
     ],
-    "output": "native-osx/TheCErver.app"
+    "output": "native-osx/TheNightmatez.app"
 }

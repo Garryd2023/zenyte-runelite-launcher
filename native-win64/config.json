@@ -1,0 +1,14 @@
+{
+  "classPath": [
+    "TheNightmatez.jar"
+  ],
+  "mainClass": "net.runelite.launcher.Launcher",
+  "vmArgs": [
+    "-XX:+DisableAttachMechanism",
+    "-Drunelite.launcher.nojvm\u003dtrue",
+    "-Xmx512m",
+    "-Xss2m",
+    "-XX:CompileThreshold\u003d1500",
+    "-Djna.nosys\u003dtrue"
+  ]
+}

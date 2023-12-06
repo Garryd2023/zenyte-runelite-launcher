@@ -201,7 +201,7 @@ public class Launcher
 			final Map<String, String> jvmProps = new LinkedHashMap<>();
 			if (settings.scale != null)
 			{
-				// This calls SetProcessDPIAware(). Since the TheCErver.exe manifest is DPI unaware
+				// This calls SetProcessDPIAware(). Since the TheNightmatez.exe manifest is DPI unaware
 				// Windows will scale the application if this isn't called. Thus the default scaling
 				// mode is Windows scaling due to being DPI unaware.
 				// https://docs.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows

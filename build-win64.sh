@@ -31,14 +31,14 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
 java -jar packr_${PACKR_VERSION}.jar \
     packr/win-x64-config.json
 
-tools/rcedit-x64 native-win64/TheCErver.exe \
+tools/rcedit-x64 native-win64/TheNightmatez.exe \
   --application-manifest packr/runelite.manifest \
   --set-icon favicon.ico
 
-echo TheCErver.exe 64bit sha256sum
-sha256sum native-win64/TheCErver.exe
+echo TheNightmatez.exe 64bit sha256sum
+sha256sum native-win64/TheNightmatez.exe
 
-dumpbin //HEADERS native-win64/TheCErver.exe
+dumpbin //HEADERS native-win64/TheNightmatez.exe
 
 # We use the filtered iss file
 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" target/filtered-resources/runelite.iss

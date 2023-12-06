@@ -1,9 +1,9 @@
 {
     "platform": "linuxaarch64",
     "jdk": "linux-aarch64-jdk",
-    "executable": "TheCErver",
+    "executable": "TheNightmatez",
     "classpath": [
-        "target/TheCErver.jar"
+        "target/TheNightmatez.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -12,7 +12,7 @@
        "-Xss2m",
        "-XX:CompileThreshold=1500"
     ],
-    "output": "native-linux-aarch64/TheCErver.AppDir/",
+    "output": "native-linux-aarch64/TheNightmatez.AppDir/",
     "resources": [
       "target/filtered-resources/runelite.desktop",
       "appimage/runelite.png"
